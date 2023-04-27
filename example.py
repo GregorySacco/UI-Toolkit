@@ -12,18 +12,24 @@ import yaml
 # streams=resolve_stream('name','datagather')
 # inlet=StreamInlet(streams[0])
 
-X = deque(maxlen=20)
-X2 = deque(maxlen=20)
-Y = deque(maxlen=20)
-X.append(0)
-X2.append(0)
-Y.append(0)
 
 minmax = {1: "min", 2:"max"}
 
 with open('ECG_config.yml', 'r') as file:    
     config = yaml.safe_load(file)
 
+class MyClass:
+    def __init__(self):
+        self.parameter1 = [0]  
+        self.parameter2 = [0]  
+        self.parameter3 = [0]  
+        self.parameter4 = [0]  
+        self.parameter5 = [0]  
+        self.parameter6 = [0]  
+        self.GPy = [0]
+        self.Acqy = [0]
+        
+values = MyClass()
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.SLATE],
                 meta_tags=[{'name':'viewport',
@@ -45,9 +51,8 @@ app.layout = html.Div([
 
 
 @app.callback(Output('tabs-content', 'children'),
-              Input('tabs-example', 'value'),
-              State('graph-update','disabled'))
-def render_content(tab,disabled):
+              Input('tabs-example', 'value'))
+def render_content(tab):
     if tab == 'init':
         return html.Div([
             html.Br(),
@@ -108,16 +113,16 @@ def render_content(tab,disabled):
                     html.Br(),
                     html.H3('Acquisition function'),
                     html.Br(),
-                    dcc.Graph(id='live_Acq', animate=True),
+                    dcc.Graph(id='live_Acq'),
                 ], style={'padding':20, 'flex':1}), 
 
             ],style={'display':'flex', 'flex-direction':'row'}),
-            html.Button(id='stop_button',className='btn btn-secondary',children='STOP',  #440 and 32
+            html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE',  #440 and 32
                         style={'width': '300px', 'height':'100px', 'margin-left':'597px', 'margin-top':'20px','border-radius':'10px'}),
 
             
 
-            html.Button(id='start_button',className='btn btn-secondary',children='START', 
+            html.Button(id='resume_button',className='btn btn-secondary',children='RESUME', 
                         style={'width': '300px','height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}),
         ])
             
@@ -154,56 +159,86 @@ def update_parmBox(n):
 
 @app.callback(Output(component_id="live_GP", component_property="figure"), 
               Input('graph-update', 'n_intervals'), 
-              State('graph-update', 'disabled'),
-              State('dataGP', 'value'))   
-def update_graph(n, disable, store):
-    global X
-    global X2
-    global Y
+              State('graph-update', 'disabled'))   
+def update_graph(n, disable):
+
     [parmMin, parmMax]= config['Optimization']['range'][0]
     [costMin, costMax]= config['Optimization']['range_cost']
     n_parm = config['Optimization']['n_parms']
-        
+
     match n_parm:
         case 1:
             if disable == False:
-                X.append(random.randint(parmMin, parmMax))
-                Y.append(random.randint(costMin, costMax))
+                values.parameter1.append(random.randint(parmMin, parmMax))
+                values.GPy.append(random.randint(costMin, costMax))
+                # X[-10:]
             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
-                yaxis=dict(title='Cost',range=[min(Y), max(Y)]),title='Gaussian Process')
-            data = go.Scatter(x=list(X), y=list(Y), name='gp', mode="lines+markers")
+                yaxis=dict(title='Cost'),title='Gaussian Process')
+            data = go.Scatter(x=list(values.parameter1), y=list(values.GPy), name='gp', mode="lines+markers")
             return {'data':[data], 'layout':layout}
         
         case 2:
-            # X.append(X[-1]+1)
             if disable == False:
-                X.append(random.randint(parmMin, parmMax))
-                X2.append(random.randint(parmMin, parmMax))
-                Y.append(Y[-1]+(10*random.uniform(-0.1,0.1)))
-            data=go.Mesh3d(x=list(X), y=list(X2), z=list(Y), opacity=0.50)
-            return {'data':[data]}
-    # data = go.Scatter(x=list(X), y=list(Y), name='gp', mode="lines+markers")
-    # return {'data':[data]}      
+                values.parameter1.append(random.randint(parmMin, parmMax))
+                values.parameter2.append(random.randint(parmMin, parmMax))
+                values.GPy.append(random.randint(costMin, costMax))
+            layout = go.Layout(scene = dict(
+                    xaxis_title='Parameter 1',
+                    yaxis_title='Parameter 2',
+                    zaxis_title='Cost'),
+                    width=700,
+                    margin=dict(r=20, b=40, l=10, t=0))
+            data=go.Mesh3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), opacity=0.50)
+            return {'data':[data], 'layout':layout} 
         
 
-    # layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
-    #                     yaxis=dict(title='Cost',range=[min(Y), max(Y)]),title='Gaussian Process')
-    # data = go.Scatter(x=list(X), y=list(Y), name='gp', mode="lines+markers")
-    # 
-    #return {'data':[data]}   
+@app.callback(Output(component_id="live_Acq", component_property="figure"), 
+              Input('graph-update', 'n_intervals'), 
+              State('graph-update', 'disabled'))   
+def update_graph(n, disable):
+
+    [parmMin, parmMax]= config['Optimization']['range'][0]
+    [costMin, costMax]= config['Optimization']['range_cost']
+    n_parm = config['Optimization']['n_parms']
+
+    match n_parm:
+        case 1:
+            if disable == False:
+                values.parameter1.append(random.randint(parmMin, parmMax))
+                values.Acqy.append(random.randint(costMin, costMax))
+            layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
+                yaxis=dict(title='Cost',range=[min(values.Acqy), max(values.Acqy)]))  #,title='Gaussian Process')
+            data = go.Scatter(x=list(values.parameter1), y=list(values.Acqy), name='gp', mode="lines+markers")
+            return {'data':[data], 'layout':layout}
+        
+        case 2:
+            if disable == False:
+                # values.parameter1.append(random.randint(parmMin, parmMax))
+                # values.parameter2.append(random.randint(parmMin, parmMax))
+                values.Acqy.append(values.Acqy[-1]+(10*random.uniform(-0.1,0.1)))
+            layout = go.Layout(scene = dict(
+                    xaxis_title='Parameter 1',
+                    yaxis_title='Parameter 2',
+                    zaxis_title='Cost'),
+                    width=700,
+                    margin=dict(r=30, b=30, l=10, t=10))
+            data=go.Mesh3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.Acqy), opacity=0.50)
+            return {'data':[data], 'layout':layout} 
+
+
 
 
 @app.callback(
     Output('graph-update', 'disabled'),
-    Input('start_button', 'n_clicks'),
-    Input('stop_button', 'n_clicks'),
+    Input('resume_button', 'n_clicks'),
+    Input('pause_button', 'n_clicks'),
     State('graph-update', 'disabled'))
-def start_opt(n_start, n_stop, state):
-    if (None == n_start) and (None== n_stop):
+def resume_opt(n_resume, n_pause, state):
+    if (None == n_resume) and (None== n_pause):
         return state
-    if "start_button" == ctx.triggered_id:
+    if "resume_button" == ctx.triggered_id:
         return False
-    elif "stop_button" == ctx.triggered_id:
+    elif "pause_button" == ctx.triggered_id:
         return True
     
     
