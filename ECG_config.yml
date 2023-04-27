@@ -1,0 +1,22 @@
+Cost:
+  Name: ECG_processed
+  avg_time: 14
+  mean_time: 5
+  n_samples: 5
+  time: 90
+Optimization:
+  GP: Regular
+  acquisition: qei
+  device: cuda
+  kernel_function: se
+  model_save_path: models/
+  n_exploration: 3
+  n_parms: 1
+  n_start_points: 3
+  n_steps: 15
+  range:
+  - - -2
+    - 4
+  range_cost:
+  - -3
+  - 4
