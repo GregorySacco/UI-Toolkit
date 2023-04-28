@@ -7,11 +7,6 @@ from collections import deque
 import dash_bootstrap_components as dbc
 import numpy as np
 import yaml
-#from pylsl import StreamInfo, StreamInlet, resolve_stream
-
-#streams=resolve_stream('name','datagather')
-#inlet=StreamInlet(streams[0])
-
 from pylsl import StreamInfo, StreamInlet, resolve_stream
 import time
 
@@ -24,6 +19,9 @@ inlet_gp=StreamInlet(streams[0])
 streams=resolve_stream('name','plot_data_acq')
 inlet_acq=StreamInlet(streams[0])
 
+streams=resolve_stream('name','polar ECG')
+inlet_ecg=StreamInlet(streams[0])
+
 
 minmax = {1: "min", 2:"max"}
 
@@ -34,13 +32,14 @@ class MyClass:
     def __init__(self):
         self.parameter1 = []  
         self.parameter2 = []  
-        self.parameter3 = [0]  
-        self.parameter4 = [0]  
-        self.parameter5 = [0]  
-        self.parameter6 = [0]  
+        self.parameter3 = []  
+        self.parameter4 = []  
+        self.parameter5 = []  
+        self.parameter6 = []  
         self.GPy = []
         self.Acq_data_plot = None
         self.GP_data_plot = None
+        self.ECGy =[]
         
 values = MyClass()
 
@@ -145,16 +144,16 @@ def render_content(tab):
                 html.Br(),
                 html.Div([
                     html.Br(),
-                    html.H3('Cost/iterations'),
+                    #html.H3('Cost/iterations'),
                     html.Br(),
-                    dcc.Graph(id='live_cost', animate=True),
+                    dcc.Graph(id='live_ECG')
                 ], style={'padding':20, 'flex':1}),
     
                 html.Div([
                     html.Br(),
                     html.H3('Parameter/iterations'),
                     html.Br(),
-                    dcc.Graph(id='live_parm', animate=True),
+                    dcc.Graph(id='live_parm'),
                 ], style={'padding':20, 'flex':1}), 
             ],style={'display':'flex', 'flex-direction':'row'})
 
@@ -188,8 +187,8 @@ def update_graph(n):
     match n_parm:
         case 1:
             if time_inlet is not None:
-                values.parameter1.append(data_plot[0])
-                values.GPy.append(data_plot[1])
+                values.parameter1.append(data_plot[1])
+                values.GPy.append(data_plot[0])
      
             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                 yaxis=dict(title='Cost'),title='Gaussian Process')
@@ -259,6 +258,53 @@ def update_graph(n):
                 return {'data':[data], 'layout':layout} 
             
 
+
+@app.callback(Output(component_id="live_ECG", component_property="figure"), 
+              Input('graph-update', 'n_intervals'))   
+def update_graph(n):
+    
+    data_plot, time_inlet = inlet_ecg.pull_chunk(timeout=0.2)
+    if data_plot is not None:
+       values.ECGy = np.array(data_plot).flatten()
+     
+    layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
+    data = go.Scatter(y=values.ECGy, name='ECG', mode="lines")
+    return {'data':[data], 'layout':layout}
+
+@app.callback(Output(component_id="live_parm", component_property="figure"), 
+              Input('graph-update', 'n_intervals'))   
+def update_graph(n):
+    n_parm = config['Optimization']['n_parms']
+    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
+    print(time_inlet)
+    if time_inlet is not None:
+        if n_parm>=1: 
+           values.parameter1.append(data_plot[1])
+           data1 = go.Scatter(y=values.parameter1, name='Parameter1', mode="lines")
+           stamp= [data1]
+           if n_parm>=2:
+                values.parameter2.append(data_plot[2])
+                data2 = go.Scatter(y=values.parameter2, name='Parameter2', mode="lines")  
+                stamp= [data1, data2]   
+                if n_parm>=3:
+                    values.parameter3.append(data_plot[3])
+                    data3 = go.Scatter(y=values.parameter3, name='Parameter3', mode="lines")  
+                    stamp= [data1, data2, data3] 
+                    if n_parm>=4:
+                        values.parameter4.append(data_plot[4])
+                        data4 = go.Scatter(y=values.parameter4, name='Parameter4', mode="lines")  
+                        stamp= [data1, data2, data3, data4]
+                        if n_parm>=5:
+                            values.parameter5.append(data_plot[5])
+                            data5 = go.Scatter(y=values.parameter5, name='Parameter5', mode="lines")  
+                            stamp= [data1, data2, data3, data4, data5]
+                            if n_parm>=6:
+                                values.parameter6.append(data_plot[6])
+                                data6 = go.Scatter(y=values.parameter6, name='Parameter6', mode="lines")  
+                                stamp= [data1, data2, data3, data4, data5, data6]
+        layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
+       
+    return {'data':stamp, 'layout':layout}
 
 
 # @app.callback(
