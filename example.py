@@ -7,11 +7,19 @@ from collections import deque
 import dash_bootstrap_components as dbc
 import numpy as np
 import yaml
-# from pylsl import StreamInfo, StreamInlet, resolve_stream
+#from pylsl import StreamInfo, StreamInlet, resolve_stream
 
-# streams=resolve_stream('name','datagather')
-# inlet=StreamInlet(streams[0])
+#streams=resolve_stream('name','datagather')
+#inlet=StreamInlet(streams[0])
 
+from pylsl import StreamInfo, StreamInlet, resolve_stream
+import time
+
+streams=resolve_stream('name','Change_parm')
+inlet=StreamInlet(streams[0])
+
+streams=resolve_stream('name','plot_data_GP')
+inlet_gp=StreamInlet(streams[0])
 
 minmax = {1: "min", 2:"max"}
 
@@ -28,6 +36,7 @@ class MyClass:
         self.parameter6 = [0]  
         self.GPy = [0]
         self.Acqy = [0]
+        self.GP_data_plot = None
         
 values = MyClass()
 
@@ -46,7 +55,7 @@ app.layout = html.Div([
         ]),
         html.Div(id='tabs-content'),
     ]),
-    dcc.Interval(id="graph-update", interval=500, disabled=True), 
+    dcc.Interval(id="graph-update", interval=2000, disabled=False), 
 ])
 
 
@@ -158,24 +167,40 @@ def update_parmBox(n):
      
 
 @app.callback(Output(component_id="live_GP", component_property="figure"), 
-              Input('graph-update', 'n_intervals'), 
-              State('graph-update', 'disabled'))   
-def update_graph(n, disable):
+              Input('graph-update', 'n_intervals'))   
+def update_graph(n):
 
+    disable = False #TODO change
     [parmMin, parmMax]= config['Optimization']['range'][0]
     [costMin, costMax]= config['Optimization']['range_cost']
     n_parm = config['Optimization']['n_parms']
+    
 
+    data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
+    print(data_plot, time_inlet)
+
+    data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
+    print(time_inlet_gp)
+    # print("updating plot")
+    # print(data_plot, time_inlet, data_gp, time_inlet_gp)
+    if len(time_inlet_gp):
+        print('data received')
+        gp_list = [i[0] for i in data_gp]
+        print(len(gp_list))
+        values.GP_data_plot = gp_list
+    
     match n_parm:
         case 1:
-            if disable == False:
-                values.parameter1.append(random.randint(parmMin, parmMax))
-                values.GPy.append(random.randint(costMin, costMax))
-                # X[-10:]
+            if time_inlet is not None:
+                print(values.parameter1.append(data_plot[0]))
+                print(values.GPy.append(data_plot[1]))
+     
             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                 yaxis=dict(title='Cost'),title='Gaussian Process')
-            data = go.Scatter(x=list(values.parameter1), y=list(values.GPy), name='gp', mode="lines+markers")
-            return {'data':[data], 'layout':layout}
+            data = go.Scatter(x=list(values.parameter1), y=list(values.GPy), name='cost_samples', mode="markers")
+            if values.GP_data_plot is not None:
+                data_1 = go.Scatter(x=list(np.linspace(0,85, 100)), y=values.GP_data_plot, name='GP', mode="lines")
+            return {'data':[data, data_1], 'layout':layout}
         
         case 2:
             if disable == False:
@@ -192,54 +217,52 @@ def update_graph(n, disable):
             return {'data':[data], 'layout':layout} 
         
 
-@app.callback(Output(component_id="live_Acq", component_property="figure"), 
-              Input('graph-update', 'n_intervals'), 
-              State('graph-update', 'disabled'))   
-def update_graph(n, disable):
+# @app.callback(Output(component_id="live_Acq", component_property="figure"), 
+#               Input('graph-update', 'n_intervals'))   
+# def update_graph(n, disable):
 
-    [parmMin, parmMax]= config['Optimization']['range'][0]
-    [costMin, costMax]= config['Optimization']['range_cost']
-    n_parm = config['Optimization']['n_parms']
+#     [parmMin, parmMax]= config['Optimization']['range'][0]
+#     [costMin, costMax]= config['Optimization']['range_cost']
+#     n_parm = config['Optimization']['n_parms']
 
-    match n_parm:
-        case 1:
-            if disable == False:
-                values.parameter1.append(random.randint(parmMin, parmMax))
-                values.Acqy.append(random.randint(costMin, costMax))
-            layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
-                yaxis=dict(title='Cost',range=[min(values.Acqy), max(values.Acqy)]))  #,title='Gaussian Process')
-            data = go.Scatter(x=list(values.parameter1), y=list(values.Acqy), name='gp', mode="lines+markers")
-            return {'data':[data], 'layout':layout}
+#     match n_parm:
+#         case 1:
+#             if disable == False:
+#                 values.parameter1.append(random.randint(parmMin, parmMax))
+#                 values.Acqy.append(random.randint(costMin, costMax))
+#             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
+#                 yaxis=dict(title='Cost',range=[min(values.Acqy), max(values.Acqy)]))  #,title='Gaussian Process')
+#             data = go.Scatter(x=list(values.parameter1), y=list(values.Acqy), name='gp', mode="lines+markers")
+#             return {'data':[data], 'layout':layout}
         
-        case 2:
-            if disable == False:
-                # values.parameter1.append(random.randint(parmMin, parmMax))
-                # values.parameter2.append(random.randint(parmMin, parmMax))
-                values.Acqy.append(values.Acqy[-1]+(10*random.uniform(-0.1,0.1)))
-            layout = go.Layout(scene = dict(
-                    xaxis_title='Parameter 1',
-                    yaxis_title='Parameter 2',
-                    zaxis_title='Cost'),
-                    width=700,
-                    margin=dict(r=30, b=30, l=10, t=10))
-            data=go.Mesh3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.Acqy), opacity=0.50)
-            return {'data':[data], 'layout':layout} 
+#         case 2:
+#             if disable == False:
+#                 # values.parameter1.append(random.randint(parmMin, parmMax))
+#                 # values.parameter2.append(random.randint(parmMin, parmMax))
+#                 values.Acqy.append(values.Acqy[-1]+(10*random.uniform(-0.1,0.1)))
+#             layout = go.Layout(scene = dict(
+#                     xaxis_title='Parameter 1',
+#                     yaxis_title='Parameter 2',
+#                     zaxis_title='Cost'),
+#                     width=700,
+#                     margin=dict(r=30, b=30, l=10, t=10))
+#             data=go.Mesh3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.Acqy), opacity=0.50)
+#             return {'data':[data], 'layout':layout} 
 
 
 
 
-@app.callback(
-    Output('graph-update', 'disabled'),
-    Input('resume_button', 'n_clicks'),
-    Input('pause_button', 'n_clicks'),
-    State('graph-update', 'disabled'))
-def resume_opt(n_resume, n_pause, state):
-    if (None == n_resume) and (None== n_pause):
-        return state
-    if "resume_button" == ctx.triggered_id:
-        return False
-    elif "pause_button" == ctx.triggered_id:
-        return True
+# @app.callback(
+#     Output('graph-update', 'disabled'),
+#     Input('resume_button', 'n_clicks'),
+#     Input('pause_button', 'n_clicks'))
+# def resume_opt(n_resume, n_pause, state):
+#     if (None == n_resume) and (None== n_pause):
+#         return True #state
+#     if "resume_button" == ctx.triggered_id:
+#         return True #False
+#     elif "pause_button" == ctx.triggered_id:
+#         return True
     
     
 @app.callback(
@@ -274,4 +297,4 @@ def submit(n_submit, n_parm, GP, Acq, parmRanges, costMin, costMax):
         
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port = 8080)   #, host='0.0.0.0'
+    app.run_server(debug=False, port = 8080, host='0.0.0.0')

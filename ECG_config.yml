@@ -15,8 +15,10 @@ Optimization:
   n_start_points: 3
   n_steps: 15
   range:
-  - - -2
-    - 4
+  - - 0
+    - 85
+  - - -3
+    - 10
   range_cost:
-  - -3
-  - 4
+  - 0
+  - 50
