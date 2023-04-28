@@ -11,14 +11,14 @@ Optimization:
   kernel_function: se
   model_save_path: models/
   n_exploration: 3
-  n_parms: 1
+  n_parms: 2
   n_start_points: 3
   n_steps: 15
   range:
   - - 0
     - 85
-  - - -3
-    - 10
+  - - 0
+    - 85
   range_cost:
   - 0
   - 50

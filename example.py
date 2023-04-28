@@ -55,7 +55,7 @@ app.layout = html.Div([
         ]),
         html.Div(id='tabs-content'),
     ]),
-    dcc.Interval(id="graph-update", interval=2000, disabled=False), 
+    dcc.Interval(id="graph-update", interval=1000, disabled=False), 
 ])
 
 
@@ -169,31 +169,31 @@ def update_parmBox(n):
 @app.callback(Output(component_id="live_GP", component_property="figure"), 
               Input('graph-update', 'n_intervals'))   
 def update_graph(n):
-
+    # print('graph called')
     disable = False #TODO change
     [parmMin, parmMax]= config['Optimization']['range'][0]
     [costMin, costMax]= config['Optimization']['range_cost']
     n_parm = config['Optimization']['n_parms']
     
 
-    data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
-    print(data_plot, time_inlet)
+    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
+    # print(data_plot, time_inlet)
 
     data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
-    print(time_inlet_gp)
-    # print("updating plot")
+    # print(time_inlet_gp)
     # print(data_plot, time_inlet, data_gp, time_inlet_gp)
     if len(time_inlet_gp):
-        print('data received')
+        # print('data received')
         gp_list = [i[0] for i in data_gp]
-        print(len(gp_list))
+        # print(len(gp_list))
         values.GP_data_plot = gp_list
+        # print(len(gp_list))
     
     match n_parm:
         case 1:
             if time_inlet is not None:
-                print(values.parameter1.append(data_plot[0]))
-                print(values.GPy.append(data_plot[1]))
+                values.parameter1.append(data_plot[0])
+                values.GPy.append(data_plot[1])
      
             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                 yaxis=dict(title='Cost'),title='Gaussian Process')
@@ -203,17 +203,16 @@ def update_graph(n):
             return {'data':[data, data_1], 'layout':layout}
         
         case 2:
-            if disable == False:
-                values.parameter1.append(random.randint(parmMin, parmMax))
-                values.parameter2.append(random.randint(parmMin, parmMax))
-                values.GPy.append(random.randint(costMin, costMax))
-            layout = go.Layout(scene = dict(
-                    xaxis_title='Parameter 1',
-                    yaxis_title='Parameter 2',
-                    zaxis_title='Cost'),
-                    width=700,
-                    margin=dict(r=20, b=40, l=10, t=0))
-            data=go.Mesh3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), opacity=0.50)
+            if time_inlet is not None:
+                values.parameter1.append(data_plot[0])
+                values.parameter2.append(data_plot[1])
+                values.GPy.append(data_plot[2])
+            layout = go.Layout(scene = dict(xaxis_title='Parameter 1',yaxis_title='Parameter 2',
+                                zaxis_title='Cost'), width=700, margin=dict(r=20, b=40, l=10, t=0))
+            data=go.Scatter3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), name='cost_samples', mode="markers", )
+            if values.GP_data_plot is not None:
+                data_1 = go.Mesh3d(x=list(np.linspace(0,85, 30)), y=list(np.linspace(0,85, 30)),  z=values.GP_data_plot, name='GP',opacity=0.50)
+                return {'data':[data, data_1], 'layout':layout} 
             return {'data':[data], 'layout':layout} 
         
 
@@ -297,4 +296,4 @@ def submit(n_submit, n_parm, GP, Acq, parmRanges, costMin, costMax):
         
 
 if __name__ == '__main__':
-    app.run_server(debug=False, port = 8080, host='0.0.0.0')
+    app.run_server(debug=True, port = 8080) # host='0.0.0.0')
