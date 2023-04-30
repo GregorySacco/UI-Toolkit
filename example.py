@@ -176,8 +176,8 @@ def update_graph(n):
     [costMin, costMax]= config['Optimization']['range_cost']
     n_parm = config['Optimization']['n_parms']
 
-    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
-    # print(data_plot, time_inlet)
+    data_plot, time_inlet = inlet.pull_chunk(timeout=0.2)
+    print('before numpy', data_plot)
 
     data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
     if len(time_inlet_gp):
@@ -199,18 +199,27 @@ def update_graph(n):
         
         case 2:
             if time_inlet is not None:
-                if data_plot[0]:
-                    values.parameter1.append(data_plot[1])
-                    values.parameter2.append(data_plot[2])
-                    values.GPy.append(data_plot[0])             
-                
+                if len(data_plot) > 1:
+                    data_plot_arr = np.array(data_plot)
+                    # divide the array into 3 columns
+                    cost = data_plot_arr[:len(data_plot_arr)//3]
+                    parm1 = data_plot_arr[len(data_plot_arr)//3:2*len(data_plot_arr)//3]
+                    parm2 = data_plot_arr[2*len(data_plot_arr)//3:len(data_plot_arr)]
+                    print('data_plot_arr', data_plot_arr)
+                    values.parameter1 = parm2.flatten()
+                    values.parameter2 = parm1.flatten()
+                    values.GPy = cost.flatten()
+                    # print(values.parameter1.shape, values.parameter2.shape, values.GPy.shape)
+
             layout = go.Layout(scene = dict(xaxis_title='Parameter 1',yaxis_title='Parameter 2',
                                 zaxis_title='Cost'), width=600, margin=dict(r=10, b=10, l=10, t=10))
+            
+            print('parameter 1', values.parameter1, 'parameter 2', values.parameter2, 'cost', values.GPy)
             data=go.Scatter3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), name='cost_samples', mode="markers", )
             if values.GP_data_plot is not None:
                 nx,ny = (30,30)
-                x = np.linspace(0,85, nx)
-                y= np.linspace(0,85, ny)
+                x = np.linspace(0,0.85, nx)
+                y= np.linspace(0,0.85, ny)
                 xv, yv = np.meshgrid(x,y)
                 data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(values.GP_data_plot), name='GP',opacity=0.50)
                  
