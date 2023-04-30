@@ -206,13 +206,13 @@ def update_graph(n):
                     parm1 = data_plot_arr[len(data_plot_arr)//3:2*len(data_plot_arr)//3]
                     parm2 = data_plot_arr[2*len(data_plot_arr)//3:len(data_plot_arr)]
                     print('data_plot_arr', data_plot_arr)
-                    values.parameter1 = parm2.flatten()
-                    values.parameter2 = parm1.flatten()
+                    values.parameter1 = list(parm1.flatten())
+                    values.parameter2 = list(parm2.flatten())
                     values.GPy = cost.flatten()
                     # print(values.parameter1.shape, values.parameter2.shape, values.GPy.shape)
 
             layout = go.Layout(scene = dict(xaxis_title='Parameter 1',yaxis_title='Parameter 2',
-                                zaxis_title='Cost'), width=600, margin=dict(r=10, b=10, l=10, t=10))
+                                zaxis_title='Cost'), width=600 , margin=dict(r=2, b=2, l=2, t=2))
             
             print('parameter 1', values.parameter1, 'parameter 2', values.parameter2, 'cost', values.GPy)
             data=go.Scatter3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), name='cost_samples', mode="markers", )
@@ -304,11 +304,10 @@ def update_graph(n):
     return {'data': [data1,data2], 'layout': layout}
     if True:
         if n_parm>=1: 
-           values.parameter1 = list(parm1.flatten())
            data1 = go.Scatter(y=values.parameter1, name='Parameter1', mode="lines")
            stamp= [data1]
            if n_parm>=2:
-                values.parameter2 = list(parm2.flatten())
+
                 data2 = go.Scatter(y=values.parameter2, name='Parameter2', mode="lines")  
                 stamp= [data1, data2]   
                 if n_parm>=3:
