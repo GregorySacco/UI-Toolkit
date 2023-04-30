@@ -217,7 +217,7 @@ def update_graph(n):
             print('parameter 1', values.parameter1, 'parameter 2', values.parameter2, 'cost', values.GPy)
             data=go.Scatter3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), name='cost_samples', mode="markers", )
             if values.GP_data_plot is not None:
-                nx,ny = (30,30)
+                nx,ny = (20,20)
                 x = np.linspace(0,0.85, nx)
                 y= np.linspace(0,0.85, ny)
                 xv, yv = np.meshgrid(x,y)
@@ -253,15 +253,19 @@ def update_graph(n):
         case 2:
             if time_inlet is not None:
                 if data_plot[0]:
-                    values.parameter1.append(data_plot[1])
-                    values.parameter2.append(data_plot[2])
+                    data_plot_arr = np.array(data_plot).flatten()
+                    cost = data_plot_arr[:len(data_plot_arr)//3]
+                    parm1 = data_plot_arr[len(data_plot_arr)//3:2*len(data_plot_arr)//3]
+                    parm2 = data_plot_arr[2*len(data_plot_arr)//3:len(data_plot_arr)]
+                    values.parameter1 = list(parm1.flatten())
+                    values.parameter2 = list(parm2.flatten())
 
             layout = go.Layout(scene = dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
                             zaxis_title='Cost'), width=600, margin=dict(r=10, b=10, l=10, t=10))
             if values.Acq_data_plot is not None:
-                nx,ny = (30,30)
-                x = np.linspace(0,85, nx)
-                y= np.linspace(0,85, ny)
+                nx,ny = (20,20)
+                x = np.linspace(0,0.85, nx)
+                y= np.linspace(0,0.85, ny)
                 xv, yv = np.meshgrid(x,y)
                 data = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(values.Acq_data_plot), name='Acq',opacity=0.50)
                 return {'data':[data], 'layout':layout} 
@@ -284,15 +288,27 @@ def update_graph(n):
               Input('graph-update', 'n_intervals'))   
 def update_graph(n):
     n_parm = config['Optimization']['n_parms']
-    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
+    data_plot, time_inlet = inlet.pull_chunk(timeout=0.2)
     print(time_inlet)
-    if time_inlet is not None:
+    print(len(time_inlet))
+    if n_parm == 2 and len(time_inlet) > 0:
+        data_plot_arr = np.array(data_plot).flatten()
+        cost = data_plot_arr[:len(data_plot_arr)//3]
+        parm1 = data_plot_arr[len(data_plot_arr)//3:2*len(data_plot_arr)//3]
+        parm2 = data_plot_arr[2*len(data_plot_arr)//3:len(data_plot_arr)]
+        values.parameter1 = list(parm1.flatten())
+        values.parameter1 = list(parm1.flatten())
+    layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
+    data1 = go.Scatter(y=values.parameter1, name='Parameter1', mode="lines")
+    data2 = go.Scatter(y=values.parameter2, name='Parameter2', mode="lines")  
+    return {'data': [data1,data2], 'layout': layout}
+    if True:
         if n_parm>=1: 
-           values.parameter1.append(data_plot[1])
+           values.parameter1 = list(parm1.flatten())
            data1 = go.Scatter(y=values.parameter1, name='Parameter1', mode="lines")
            stamp= [data1]
            if n_parm>=2:
-                values.parameter2.append(data_plot[2])
+                values.parameter2 = list(parm2.flatten())
                 data2 = go.Scatter(y=values.parameter2, name='Parameter2', mode="lines")  
                 stamp= [data1, data2]   
                 if n_parm>=3:
@@ -311,8 +327,8 @@ def update_graph(n):
                                 values.parameter6.append(data_plot[6])
                                 data6 = go.Scatter(y=values.parameter6, name='Parameter6', mode="lines")  
                                 stamp= [data1, data2, data3, data4, data5, data6]
-        layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
-       
+
+        print(stamp)       
     return {'data':stamp, 'layout':layout}
 
 
@@ -361,4 +377,4 @@ def submit(n_submit, n_parm, GP, Acq, parmRanges, costMin, costMax):
         
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port = 8080) # host='0.0.0.0')
+    app.run_server(debug=False, port = 8080, host='0.0.0.0')
