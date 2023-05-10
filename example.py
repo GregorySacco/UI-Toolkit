@@ -23,7 +23,6 @@ inlet_ecg=StreamInlet(streams[0])
 
 
 minmax = {1: "min", 2:"max"}
-
 with open('ECG_config.yml', 'r') as file:    
     config = yaml.safe_load(file)
 
@@ -37,7 +36,7 @@ class MyClass:
         self.parameter6 = []  
         self.GPy = []
         self.Acq_data_plot = None
-        self.GP_data_plot = None
+        self.GP_data_plot = []
         self.ECGy =[]
         self.HistParm=[]
         self.HistGP = []
@@ -192,7 +191,7 @@ def update_graph(n):
                 values.GPy.append(data_plot[0])
             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                                     yaxis=dict(title='Cost'),title='Gaussian Process')
-            data = go.Scatter(x=list(values.parameter1), y=list(values.GPy), name='cost_samples', mode="markers")
+            data = go.Scatter(x=list(values.parameter1), y=list(values.GPy), name='cost_sample', mode="markers")
             if values.GP_data_plot is not None:
                 data_1 = go.Scatter(x=list(np.linspace(0,85, 100)), y=values.GP_data_plot, name='GP', mode="lines")
             values.HistGP = [data, data_1]
@@ -205,10 +204,13 @@ def update_graph(n):
                     values.parameter2.append(data_plot[2])
                     values.GPy.append(data_plot[0])             
             layout = go.Layout(scene = dict(xaxis_title='Parameter 1',yaxis_title='Parameter 2',
-                                zaxis_title='Cost'), width=600, margin=dict(r=10, b=10, l=10, t=10))
+                                zaxis_title='Cost'), width=800, margin=dict(r=10, b=40, l=10, t=20))
+            
             data=go.Scatter3d(x=list(values.parameter1), y=list(values.parameter2), z=list(values.GPy), 
-                              name='cost_samples', mode="markers", )
+                              name='cost_samples', mode="markers")
             values.HistGP= [data]
+
+            ###################################
             if values.GP_data_plot is not None:
                 nx,ny = (30,30)
                 x = np.linspace(0,85, nx)

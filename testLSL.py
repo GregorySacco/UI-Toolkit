@@ -1,10 +1,7 @@
+from UI import UI
 from pylsl import StreamInfo, StreamInlet, resolve_stream
-import time
 
-streams=resolve_stream('name','Change_parm')
-inlet=StreamInlet(streams[0])
+app = UI()
 
-
-while True:
-    print(inlet.pull_sample(timeout=0.5))
-    time.sleep(0.5)
+if __name__ == '__main__':
+            app.app.run_server(debug=True, port = 8080) # host='0.0.0.0')
