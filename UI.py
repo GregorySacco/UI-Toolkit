@@ -6,22 +6,26 @@ from collections import deque
 import dash_bootstrap_components as dbc
 import numpy as np
 import yaml
+import math
+import itertools
 from pylsl import StreamInfo, StreamInlet, resolve_stream
 
 
 class UI:
     def __init__(self):
+        
         streams=resolve_stream('name','Change_parm')
         inlet=StreamInlet(streams[0])
-
+        
         streams=resolve_stream('name','plot_data_GP')
         inlet_gp=StreamInlet(streams[0])
-
+        
         # streams=resolve_stream('name','plot_data_acq')
         # inlet_acq=StreamInlet(streams[0])
 
         streams=resolve_stream('name','polar ECG')
         inlet_ecg=StreamInlet(streams[0])
+        
         
         self.parameter1 = []  
         self.parameter2 = []  
@@ -177,7 +181,10 @@ class UI:
             data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
             if len(time_inlet_gp):
                 gp_list = [i[0] for i in data_gp]
-                self.GP_data_plot = gp_list
+                print(gp_list)
+                n = len(gp_list)
+                gp_size = int(math.sqrt(n))
+                self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
             
             match n_parm:
                 case 1:
@@ -211,8 +218,9 @@ class UI:
                         x = np.linspace(0,85, nx)
                         y= np.linspace(0,85, ny)
                         xv, yv = np.meshgrid(x,y)
-                        data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
-                        self.HistGP= [data, data_1]
+                        # data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
+                        data_1 = go.Surface(x=x,y=y,z=self.GP_data_plot, name='GP',opacity=0.50) 
+                        self.HistGP = [data, data_1]
                     
                     return {'data':self.HistGP, 'layout':layout} 
                 
