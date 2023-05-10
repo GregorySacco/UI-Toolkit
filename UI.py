@@ -181,7 +181,6 @@ class UI:
             data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
             if len(time_inlet_gp):
                 gp_list = [i[0] for i in data_gp]
-                print(gp_list)
                 n = len(gp_list)
                 gp_size = int(math.sqrt(n))
                 self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
@@ -204,10 +203,15 @@ class UI:
                         if data_plot[0]:
                             self.parameter1.append(data_plot[1])
                             self.parameter2.append(data_plot[2])
-                            self.GPy.append(data_plot[0])             
-                    layout = go.Layout(scene = dict(xaxis_title='Parameter 1',yaxis_title='Parameter 2',
-                                        zaxis_title='Cost'), width=800, margin=dict(r=10, b=40, l=10, t=20))
-                    
+                            self.GPy.append(data_plot[0])   
+
+                    x_scale = 1.4
+                    y_scale = 1.4  
+                    z_scale = 0.5
+                    layout=go.Layout(scene=dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
+                                zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=x_scale,
+                                y=y_scale, z=z_scale)), width=800, margin=dict(r=10, b=40, l=10, t=0))                  
+                                     
                     data=go.Scatter3d(x=list(self.parameter1), y=list(self.parameter2), z=list(self.GPy), 
                                     name='cost_samples', mode="markers")
                     self.HistGP= [data]
@@ -217,7 +221,7 @@ class UI:
                         nx,ny = (30,30)
                         x = np.linspace(0,85, nx)
                         y= np.linspace(0,85, ny)
-                        xv, yv = np.meshgrid(x,y)
+                        # xv, yv = np.meshgrid(x,y)
                         # data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
                         data_1 = go.Surface(x=x,y=y,z=self.GP_data_plot, name='GP',opacity=0.50) 
                         self.HistGP = [data, data_1]
