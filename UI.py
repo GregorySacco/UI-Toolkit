@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import yaml
 import math
-import itertools
+
 from pylsl import StreamInfo, StreamInlet, resolve_stream
 
 
