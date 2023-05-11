@@ -176,7 +176,6 @@ class UI:
             n_parm = config['Optimization']['n_parms']
 
             data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
-            # print(data_plot, time_inlet)
 
             data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
             if len(time_inlet_gp):
@@ -273,9 +272,9 @@ class UI:
                     Input('graph-update', 'n_intervals'))   
         def update_graph(n):
             
-            data_plot, time_inlet = inlet_ecg.pull_chunk(timeout=0.2)
-            if data_plot is not None:
-                self.ECGy = np.array(data_plot).flatten()
+            data_ecg, time_inlet_ecg = inlet_ecg.pull_chunk(timeout=0.2)
+            if data_ecg is not None:
+                self.ECGy = np.array(data_ecg).flatten()
             
             layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
             data = go.Scatter(y=self.ECGy, name='ECG', mode="lines")
