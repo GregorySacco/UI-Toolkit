@@ -44,8 +44,8 @@ def list_OptimizationData():
       saved.ecg=data_ecg
    
    in_memory_datastore = {
-    #   "Change_parm" : {"data_plot": data_plot, "time_inlet": time_inlet},
-    #   "plot_data_GP" : {"data_gp": data_gp, "time_inlet_gp": time_inlet_gp},
+      "Change_parm" : {"data_plot": data_plot, "time_inlet": time_inlet},
+      "plot_data_GP" : {"data_gp": data_gp, "time_inlet_gp": time_inlet_gp},
       "polar ECG" : {"data_ecg": data_ecg},
    }
    return in_memory_datastore

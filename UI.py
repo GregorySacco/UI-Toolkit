@@ -9,7 +9,6 @@ import yaml
 import math
 import requests
 
-from pylsl import StreamInfo, StreamInlet, resolve_stream
 
 
 class UI:
@@ -47,7 +46,8 @@ class UI:
                 html.Div(id='tabs-content'),
             ]),
             dcc.Interval(id="graph-update", interval=2500, disabled=False), 
-            dcc.Interval(id="server_timer", interval=200), 
+            dcc.Interval(id="server_timer", interval=2000), 
+            html.Div(id="hidden-div", children= None, style={"display":"none"})
         ])
 
 
@@ -147,8 +147,8 @@ class UI:
                     ],style={'display':'flex', 'flex-direction':'row'})
 
 
-        @self.app.callback(Output('update', 'children'),
-                        Input('server_timer', 'n_intervals'))
+        @self.app.callback(Output("hidden-div", 'children'),
+                    Input('server_timer', 'n_intervals'))
         def download_server(n):
             if n is not None:
                 self.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
@@ -165,72 +165,71 @@ class UI:
                                             persistence=True, persistence_type='memory') for j in range(2)])]) for i in range(n)]) 
             
 
-        # @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
-        #             Input('graph-update', 'n_intervals'))   
-        # def update_graph(n):
-        #     [parmMin, parmMax]= config['Optimization']['range'][0]
-        #     [costMin, costMax]= config['Optimization']['range_cost']
-        #     n_parm = config['Optimization']['n_parms']
+        @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphGP(n):
+            [parmMin, parmMax]= config['Optimization']['range'][0]
+            [costMin, costMax]= config['Optimization']['range_cost']
+            n_parm = config['Optimization']['n_parms']
 
-        #     data_plot = self.data['Change_parm']['data_plot']
-        #     print(self.data)
-        #     time_inlet = self.data['Change_parm']['time_inlet']
+            data_plot = self.data['Change_parm']['data_plot']
+            time_inlet = self.data['Change_parm']['time_inlet']
 
-        #     data_gp = self.data['plot_data_GP']['data_gp']
-        #     time_inlet_gp = self.data['plot_data_GP']['time_inlet_gp']
-        #     if len(time_inlet_gp):
-        #         gp_list = [i[0] for i in data_gp]
-        #         n = len(gp_list)
-        #         gp_size = int(math.sqrt(n))
-        #         self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+            data_gp = self.data['plot_data_GP']['data_gp']
+            time_inlet_gp = self.data['plot_data_GP']['time_inlet_gp']
+            if len(time_inlet_gp):
+                gp_list = [i[0] for i in data_gp]
+                n = len(gp_list)
+                gp_size = int(math.sqrt(n))
+                self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
             
-        #     match n_parm:
-        #         case 1:
-        #             if time_inlet is not None:
-        #                 self.parameter1.append(data_plot[1])
-        #                 self.GPy.append(data_plot[0])
-        #             layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
-        #                                     yaxis=dict(title='Cost'),title='Gaussian Process')
-        #             data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
-        #             if self.GP_data_plot is not None:
-        #                 data_1 = go.Scatter(x=list(np.linspace(0,85, 100)), y=self.GP_data_plot, name='GP', mode="lines")
-        #             self.HistGP = [data, data_1]
-        #             return {'data':self.HistGP, 'layout':layout}
+            match n_parm:
+                case 1:
+                    if time_inlet is not None:
+                        self.parameter1.append(data_plot[1])
+                        self.GPy.append(data_plot[0])
+                    layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
+                                            yaxis=dict(title='Cost'),title='Gaussian Process')
+                    data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
+                    if self.GP_data_plot is not None:
+                        data_1 = go.Scatter(x=list(np.linspace(0,85, 100)), y=self.GP_data_plot, name='GP', mode="lines")
+                    self.HistGP = [data, data_1]
+                    return {'data':self.HistGP, 'layout':layout}
                 
-        #         case 2:
-        #             if time_inlet is not None:
-        #                 if data_plot[0]:
-        #                     self.parameter1.append(data_plot[1])
-        #                     self.parameter2.append(data_plot[2])
-        #                     self.GPy.append(data_plot[0])   
+                case 2:
+                    if time_inlet is not None:
+                        if data_plot[0]:
+                            self.parameter1.append(data_plot[1])
+                            self.parameter2.append(data_plot[2])
+                            self.GPy.append(data_plot[0])   
 
-        #             x_scale = 1.4
-        #             y_scale = 1.4  
-        #             z_scale = 0.5
-        #             layout=go.Layout(scene=dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
-        #                         zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=x_scale,
-        #                         y=y_scale, z=z_scale)), width=800, margin=dict(r=10, b=40, l=10, t=0))                  
+                    x_scale = 1.4
+                    y_scale = 1.4  
+                    z_scale = 0.5
+                    layout=go.Layout(scene=dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
+                                zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=x_scale,
+                                y=y_scale, z=z_scale)), width=800, margin=dict(r=10, b=40, l=10, t=0))                  
                                      
-        #             data=go.Scatter3d(x=list(self.parameter1), y=list(self.parameter2), z=list(self.GPy), 
-        #                             name='cost_samples', mode="markers")
-        #             self.HistGP= [data]
+                    data=go.Scatter3d(x=list(self.parameter1), y=list(self.parameter2), z=list(self.GPy), 
+                                    name='cost_samples', mode="markers")
+                    self.HistGP= [data]
 
-        #             ###################################
-        #             if self.GP_data_plot is not None:
-        #                 nx,ny = (30,30)
-        #                 x = np.linspace(0,85, nx)
-        #                 y= np.linspace(0,85, ny)
-        #                 # xv, yv = np.meshgrid(x,y)
-        #                 # data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
-        #                 data_1 = go.Surface(x=x,y=y,z=self.GP_data_plot, name='GP',opacity=0.50) 
-        #                 self.HistGP = [data, data_1]
+                    ###################################
+                    if self.GP_data_plot is not None:
+                        nx,ny = (30,30)
+                        x = np.linspace(0,85, nx)
+                        y= np.linspace(0,85, ny)
+                        # xv, yv = np.meshgrid(x,y)
+                        # data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
+                        data_1 = go.Surface(x=x,y=y,z=self.GP_data_plot, name='GP',opacity=0.50) 
+                        self.HistGP = [data, data_1]
                     
-        #             return {'data':self.HistGP, 'layout':layout} 
+                    return {'data':self.HistGP, 'layout':layout} 
                 
 
         # @app.callback(Output(component_id="live_Acq", component_property="figure"), 
         #               Input('graph-update', 'n_intervals'))   
-        # def update_graph(n):
+        # def update_graphACQ(n):
 
         #     [parmMin, parmMax]= config['Optimization']['range'][0]
         #     [costMin, costMax]= config['Optimization']['range_cost']
@@ -270,7 +269,7 @@ class UI:
 
         @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
-        def update_graph(n):
+        def update_graphECG(n):
             
             data_ecg = self.data['polar ECG']['data_ecg']
             if data_ecg is not None:
@@ -281,40 +280,40 @@ class UI:
             return {'data':[data], 'layout':layout}
 
 
-        # @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
-        #             Input('graph-update', 'n_intervals'))   
-        # def update_graph(n):
-        #     n_parm = config['Optimization']['n_parms']
-        #     data_plot = self.data['Change_parm']['data_plot']
-        #     time_inlet = self.data['Change_parm']['time_inlet']
-        #     layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
-        #     if time_inlet is not None:
-        #         if n_parm>=1: 
-        #             self.parameter1.append(data_plot[1])
-        #             data1 = go.Scatter(y=self.parameter1, name='Parameter1', mode="lines")
-        #             self.HistParm = [data1]
-        #             if n_parm>=2:
-        #                     self.parameter2.append(data_plot[2])
-        #                     data2 = go.Scatter(y=self.parameter2, name='Parameter2', mode="lines")  
-        #                     self.HistParm = [data1, data2]   
-        #                     if n_parm>=3:
-        #                         self.parameter3.append(data_plot[3])
-        #                         data3 = go.Scatter(y=self.parameter3, name='Parameter3', mode="lines")  
-        #                         self.HistParm = [data1, data2, data3] 
-        #                         if n_parm>=4:
-        #                             self.parameter4.append(data_plot[4])
-        #                             data4 = go.Scatter(y=self.parameter4, name='Parameter4', mode="lines")  
-        #                             self.HistParm = [data1, data2, data3, data4]
-        #                             if n_parm>=5:
-        #                                 self.parameter5.append(data_plot[5])
-        #                                 data5 = go.Scatter(y=self.parameter5, name='Parameter5', mode="lines")  
-        #                                 self.HistParm = [data1, data2, data3, data4, data5]
-        #                                 if n_parm>=6:
-        #                                     self.parameter6.append(data_plot[6])
-        #                                     data6 = go.Scatter(y=self.parameter6, name='Parameter6', mode="lines")  
-        #                                     self.HistParm = [data1, data2, data3, data4, data5, data6]
+        @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graph(n):
+            n_parm = config['Optimization']['n_parms']
+            data_plot = self.data['Change_parm']['data_plot']
+            time_inlet = self.data['Change_parm']['time_inlet']
+            layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
+            if time_inlet is not None:
+                if n_parm>=1: 
+                    self.parameter1.append(data_plot[1])
+                    data1 = go.Scatter(y=self.parameter1, name='Parameter1', mode="lines")
+                    self.HistParm = [data1]
+                    if n_parm>=2:
+                            self.parameter2.append(data_plot[2])
+                            data2 = go.Scatter(y=self.parameter2, name='Parameter2', mode="lines")  
+                            self.HistParm = [data1, data2]   
+                            if n_parm>=3:
+                                self.parameter3.append(data_plot[3])
+                                data3 = go.Scatter(y=self.parameter3, name='Parameter3', mode="lines")  
+                                self.HistParm = [data1, data2, data3] 
+                                if n_parm>=4:
+                                    self.parameter4.append(data_plot[4])
+                                    data4 = go.Scatter(y=self.parameter4, name='Parameter4', mode="lines")  
+                                    self.HistParm = [data1, data2, data3, data4]
+                                    if n_parm>=5:
+                                        self.parameter5.append(data_plot[5])
+                                        data5 = go.Scatter(y=self.parameter5, name='Parameter5', mode="lines")  
+                                        self.HistParm = [data1, data2, data3, data4, data5]
+                                        if n_parm>=6:
+                                            self.parameter6.append(data_plot[6])
+                                            data6 = go.Scatter(y=self.parameter6, name='Parameter6', mode="lines")  
+                                            self.HistParm = [data1, data2, data3, data4, data5, data6]
                 
-        #     return {'data':self.HistParm, 'layout':layout}
+            return {'data':self.HistParm, 'layout':layout}
 
 
         # @app.callback(
