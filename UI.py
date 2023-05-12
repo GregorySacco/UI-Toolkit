@@ -70,7 +70,7 @@ class UI:
                     ],style={'width':'32%', 'display':'inline-block', 'vertical-align': 'top'}),
 
                     html.Div(id='parmBox',
-                            style={'width':'420px', 'display':'inline-block', 'vertical-align': 'top','margin-left':'50px', 'margin-right':'40px'}),  
+                            style={'width':'420px', 'display':'inline-block', 'vertical-align': 'top','margin-left':'50px', 'margin-right':'25px'}),  
 
                     html.Div([      
                         html.Br(),  
@@ -96,7 +96,7 @@ class UI:
                                         'margin-top':'100px','border-radius':'10px',}),    
                                 ])          
                     ],style={'width':'32%', 'display':'inline-block',})                        
-                ], style={'margin':'40px'})
+                ], style={'margin':'0px'})
             
             elif tab == 'opt':
                 return html.Div([
@@ -108,14 +108,14 @@ class UI:
                             html.Br(),
                             dcc.Graph(id='live_GP'),  #, animate=True
                             dcc.Store(id='dataGP')   
-                        ], style={'padding':20, 'flex':1}),
+                        ], style={'padding':10, 'flex':1}),
             
                         html.Div([
                             html.Br(),
                             html.H3('Acquisition function'),
                             html.Br(),
                             dcc.Graph(id='live_Acq'),
-                        ], style={'padding':20, 'flex':1}), 
+                        ], style={'padding':10, 'flex':1}), 
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
                     html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
@@ -206,13 +206,14 @@ class UI:
                     x_scale = 1.4
                     y_scale = 1.4  
                     z_scale = 0.5
-                    layout=go.Layout(scene=dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
-                                zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=x_scale,
-                                y=y_scale, z=z_scale)), width=800, margin=dict(r=10, b=40, l=10, t=0))                  
+                    layout=go.Layout(xaxis = dict(range=[parmMin, parmMax]),yaxis=dict(range=[parmMin, parmMax]),
+                                    scene=dict(xaxis_title='Parameter 1', yaxis_title='Parameter 2',
+                                    zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=x_scale,
+                                    y=y_scale, z=z_scale)), width=700, margin=dict(r=10, b=40, l=10, t=0))                  
                                      
                     data=go.Scatter3d(x=list(self.parameter1), y=list(self.parameter2), z=list(self.GPy), 
                                     name='cost_samples', mode="markers")
-                    self.HistGP= [data]
+                    self.HistGP = [data]
 
                     ###################################
                     if self.GP_data_plot is not None:
