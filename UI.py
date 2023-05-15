@@ -283,7 +283,7 @@ class UI:
 
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
-        def update_graph(n):
+        def update_graphPARM(n):
             n_parm = config['Optimization']['n_parms']
             data_plot = self.data['Change_parm']['data_plot']
             time_inlet = self.data['Change_parm']['time_inlet']
@@ -309,7 +309,7 @@ class UI:
                                         self.parameter5.append(data_plot[5])
                                         data5 = go.Scatter(y=self.parameter5, name='Parameter5', mode="lines")  
                                         self.HistParm = [data1, data2, data3, data4, data5]
-                                        if n_parm>=6:
+                                        if n_parm==6:
                                             self.parameter6.append(data_plot[6])
                                             data6 = go.Scatter(y=self.parameter6, name='Parameter6', mode="lines")  
                                             self.HistParm = [data1, data2, data3, data4, data5, data6]
