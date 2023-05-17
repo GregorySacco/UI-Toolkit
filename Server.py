@@ -6,14 +6,16 @@ from pylsl import StreamInlet, resolve_stream
 class Store:
    def __init__(self):
       self.plot = None
+      self.time_inlet = None
       self.gp = None
+      self.time_inlet_gp = None
       self.ecg = None
 
 saved=Store()
 
 app = Flask(__name__)
 
-streams=resolve_stream('name','Change_parm')
+streams=resolve_stream('name','Change_parm')  
 inlet=StreamInlet(streams[0])
 streams=resolve_stream('name','plot_data_GP')
 inlet_gp=StreamInlet(streams[0])
@@ -28,8 +30,10 @@ def list_OptimizationData():
    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
    if data_plot is None and saved.plot is not None:      
          data_plot = saved.plot
+         time_inlet = saved.time_inlet
    else: 
       saved.plot=data_plot
+      saved.time_inlet = time_inlet
 
    data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.2)
    if data_gp == [] and saved.gp is not None:     

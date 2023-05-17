@@ -174,7 +174,6 @@ class UI:
 
             data_plot = self.data['Change_parm']['data_plot']
             time_inlet = self.data['Change_parm']['time_inlet']
-
             data_gp = self.data['plot_data_GP']['data_gp']
             time_inlet_gp = self.data['plot_data_GP']['time_inlet_gp']
             if len(time_inlet_gp):
@@ -192,7 +191,7 @@ class UI:
                                             yaxis=dict(title='Cost'),title='Gaussian Process')
                     data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
                     if self.GP_data_plot is not None:
-                        data_1 = go.Scatter(x=list(np.linspace(0,85, 100)), y=self.GP_data_plot, name='GP', mode="lines")
+                        data_1 = go.Scatter(x=list(np.linspace(0,85,100)), y=self.GP_data_plot, name='GP', mode="lines")
                     self.HistGP = [data, data_1]
                     return {'data':self.HistGP, 'layout':layout}
                 
