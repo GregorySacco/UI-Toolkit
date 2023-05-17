@@ -25,6 +25,7 @@ class UI:
         self.ECGy =[]
         self.HistParm=[]
         self.HistGP = []
+        self.previous_parm = 0
 
         self.data = {}
         self.dataECG = {}
@@ -42,7 +43,8 @@ class UI:
                 dcc.Tabs(id='tabs-example', value='init', children=[
                     dcc.Tab(label='Initialization', value='init'),
                     dcc.Tab(label='Optimization', value='opt'),
-                    dcc.Tab(label='Others', value='oth')
+                    dcc.Tab(label='Signals', value='sig'),
+                    dcc.Tab(label='Hyperparameters', value='hyp')
                 ]),
                 html.Div(id='tabs-content'),
             ]),
@@ -50,7 +52,6 @@ class UI:
             dcc.Interval(id="server_timer", interval=500), 
             dcc.Interval(id="ECG_timer", interval=2000), 
             html.Div(id="hidden-div", children= None, style={"display":"none"}),
-            html.Div(id="hidden-div2", children= None, style={"display":"none"})
         ])
 
 
@@ -121,17 +122,18 @@ class UI:
                         ], style={'padding':10, 'flex':1}), 
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
-                    html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
-                                style={'width': '300px', 'height':'100px', 'margin-left':'597px', 'margin-top':'20px','border-radius':'10px'}),
 
-                    
+                    html.Button(id='clear_button',className='btn btn-secondary',children='CLEAR', 
+                                style={'width': '300px', 'height':'100px', 'margin-left':'200px', 'margin-top':'20px','border-radius':'10px'}), 
+
+                    html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
+                                style={'width': '300px', 'height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}), 
 
                     html.Button(id='resume_button',className='btn btn-secondary',children='RESUME', 
                                 style={'width': '300px','height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}),
                 ])
                     
-            
-            elif tab == 'oth':
+            elif tab == 'sig':
                 return html.Div([
                         html.Br(),
                         html.Div([
@@ -148,20 +150,61 @@ class UI:
                             dcc.Graph(id='live_parm'),
                         ], style={'padding':20, 'flex':1}), 
                     ],style={'display':'flex', 'flex-direction':'row'})
+            
+            elif tab == 'hyp':
+                return html.Div([
+                        html.Br(),
+                        html.Div([
+                            html.Br(),
+                            html.H3('Hyperparameters'),
+                            html.Br(),
+                            dcc.Graph(id='live_sigma')
+                        ], style={'padding':20, 'flex':1}),
+            
+                        html.Div([
+                            html.Br(),
+                            html.Br(),
+                            html.Br(),
+                            html.Br(),
+                            dcc.Graph(id='live_L'),
+                        ], style={'padding':20, 'flex':1}), 
+                    ],style={'display':'flex', 'flex-direction':'row'})
 
 
-        @self.app.callback(Output("hidden-div", 'children'),
-                    Input('server_timer', 'n_intervals'))
+        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
+                    Input('server_timer', 'n_intervals'),
+                    prevent_initial_call=True)
         def download_server(n):
             if n is not None:
                 self.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
         
-        @self.app.callback(Output("hidden-div2", 'children'),
-                    Input('ECG_timer', 'n_intervals'))
+        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
+                    Input('ECG_timer', 'n_intervals'),
+                    prevent_initial_call=True)
         def download_ECG(n):
             if n is not None:
                 self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
-                
+
+        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
+                           Input('clear_button', 'n_clicks'),
+                           prevent_initial_call=True)
+        def clear_UIstack(n):
+            if "clear_button" == ctx.triggered_id:
+                self.parameter1 = []  
+                self.parameter2 = []  
+                self.parameter3 = []  
+                self.parameter4 = []  
+                self.parameter5 = []  
+                self.parameter6 = [] 
+                self.GPy = []
+                self.Acq_data_plot = None
+                self.GP_data_plot = []
+                self.ECGy =[]
+                self.HistParm = []
+                self.HistGP = []
+                self.previous_parm = 0
+                self.data = {}
+                self.dataECG = {}
 
         @self.app.callback(Output('parmBox','children'),
                     Input('parm_slider','value'),)
@@ -196,7 +239,7 @@ class UI:
                         self.parameter1.append(data_plot[1])
                         self.GPy.append(data_plot[0])
                     layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
-                                            yaxis=dict(title='Cost'),title='Gaussian Process')
+                                            yaxis=dict(title='Cost'))
                     data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
                     if self.GP_data_plot is not None:
                         data_1 = go.Scatter(x=list(np.linspace(0,85,100)), y=self.GP_data_plot, name='GP', mode="lines")
@@ -233,8 +276,6 @@ class UI:
                         nx,ny = (30,30)
                         x = np.linspace(0,85, nx)
                         y= np.linspace(0,85, ny)
-                        # xv, yv = np.meshgrid(x,y)
-                        # data_1 = go.Mesh3d(x=xv.flatten(), y=yv.flatten(), z=list(self.GP_data_plot), name='GP',opacity=0.50) 
                         data_1 = go.Surface(x=x,y=y,z=self.GP_data_plot, name='GP',opacity=0.50) 
                         self.HistGP = [data, data_1]
                     
@@ -298,10 +339,12 @@ class UI:
                     Input('graph-update', 'n_intervals'))   
         def update_graphPARM(n):
             n_parm = config['Optimization']['n_parms']
-            data_plot = self.data['Change_parm']['data_plot']
             time_inlet = self.data['Change_parm']['time_inlet']
+            data_plot = self.data['Change_parm']['data_plot']
+            
             layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
-            if time_inlet is not None:
+            if time_inlet is not None and not(time_inlet == self.previous_parm):
+                self.previous_parm = time_inlet
                 if n_parm>=1: 
                     self.parameter1.append(data_plot[1])
                     data1 = go.Scatter(y=self.parameter1, name='Parameter1', mode="lines")
