@@ -27,6 +27,7 @@ class UI:
         self.HistGP = []
 
         self.data = {}
+        self.dataECG = {}
 
         minmax = {1: "min", 2:"max"}
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
@@ -46,8 +47,10 @@ class UI:
                 html.Div(id='tabs-content'),
             ]),
             dcc.Interval(id="graph-update", interval=2500, disabled=False), 
-            dcc.Interval(id="server_timer", interval=2000), 
-            html.Div(id="hidden-div", children= None, style={"display":"none"})
+            dcc.Interval(id="server_timer", interval=500), 
+            dcc.Interval(id="ECG_timer", interval=2000), 
+            html.Div(id="hidden-div", children= None, style={"display":"none"}),
+            html.Div(id="hidden-div2", children= None, style={"display":"none"})
         ])
 
 
@@ -70,19 +73,19 @@ class UI:
                     ],style={'width':'32%', 'display':'inline-block', 'vertical-align': 'top'}),
 
                     html.Div(id='parmBox',
-                            style={'width':'420px', 'display':'inline-block', 'vertical-align': 'top','margin-left':'50px', 'margin-right':'25px'}),  
+                            style={'width':'420px', 'display':'inline-block', 'vertical-align': 'top','margin-left':'50px', 'margin-right':'30px'}),  
 
                     html.Div([      
                         html.Br(),  
                         html.Div([
                                 html.Div([
-                                    html.H3('Select the type of Gaussian process:'),
+                                    html.H3('Select type of Gaussian process:'),
                                     dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown',
                                             style={'margin-left': '0px', 'margin-right': '0px', 'width': '200px'}, persistence=True)
                                     ], style={'margin-left': '0px'}),
                                 html.Br(),     
                                 html.Div([
-                                    html.H3('Select the type of Acquisition function:'),
+                                    html.H3('Select type of Acquisition function:'),
                                     dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
                                             style={'margin-left': '0px', 'margin-right': '0px', 'width': '200px'}, persistence=True)
                                     ], style={'margin-left': '0px'}),
@@ -152,6 +155,12 @@ class UI:
         def download_server(n):
             if n is not None:
                 self.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
+        
+        @self.app.callback(Output("hidden-div2", 'children'),
+                    Input('ECG_timer', 'n_intervals'))
+        def download_ECG(n):
+            if n is not None:
+                self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
                 
 
         @self.app.callback(Output('parmBox','children'),
@@ -176,14 +185,13 @@ class UI:
             time_inlet = self.data['Change_parm']['time_inlet']
             data_gp = self.data['plot_data_GP']['data_gp']
             time_inlet_gp = self.data['plot_data_GP']['time_inlet_gp']
-            if len(time_inlet_gp):
-                gp_list = [i[0] for i in data_gp]
-                n = len(gp_list)
-                gp_size = int(math.sqrt(n))
-                self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+    
             
             match n_parm:
                 case 1:
+                    if len(time_inlet_gp):
+                        gp_list = [i[0] for i in data_gp]
+                        self.GP_data_plot = gp_list
                     if time_inlet is not None:
                         self.parameter1.append(data_plot[1])
                         self.GPy.append(data_plot[0])
@@ -196,6 +204,12 @@ class UI:
                     return {'data':self.HistGP, 'layout':layout}
                 
                 case 2:
+                    if len(time_inlet_gp):
+                        gp_list = [i[0] for i in data_gp]
+                        n = len(gp_list)
+                        gp_size = int(math.sqrt(n))
+                        self.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+
                     if time_inlet is not None:
                         if data_plot[0]:
                             self.parameter1.append(data_plot[1])
@@ -271,7 +285,7 @@ class UI:
                     Input('graph-update', 'n_intervals'))   
         def update_graphECG(n):
             
-            data_ecg = self.data['polar ECG']['data_ecg']
+            data_ecg = self.dataECG['polar ECG']['data_ecg']
             if data_ecg is not None:
                 self.ECGy = np.array(data_ecg).flatten()
             
