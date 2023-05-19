@@ -18,25 +18,31 @@ for info in streams:
     #     print(info.channel_count())
 
 
-streams =resolve_stream('source_id','1998')
-inlet=StreamInlet(streams[0])
+stream =resolve_stream('name','Change_parm')
+inlet=StreamInlet(stream[0])
+
+while True:
+    data_plot, time_inlet = inlet.pull_sample(timeout=0.5)
+    print(data_plot)
+
+
 # streams=resolve_stream('name','polar ECG')
 # inlet=StreamInlet(streams[0])
-i=0
-t =0
-while True:
-    data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
-    if data_plot is not None and i == 0:
-        i = 1
-        start= time.perf_counter()
-        print(data_plot)
-        t += 1
-        print('t = ', t )
-    elif data_plot is None and i == 1:
-        i = 0
-        stop= time.perf_counter()
-        elapsed_time = stop - start
-        print("Elapsed time: ", elapsed_time)
+# i=0
+# t =0
+# while True:
+#     data_plot, time_inlet = inlet.pull_sample(timeout=0.2)
+#     if data_plot is not None and i == 0:
+#         i = 1
+#         start= time.perf_counter()
+#         print(data_plot)
+#         t += 1
+#         print('t = ', t )
+#     elif data_plot is None and i == 1:
+#         i = 0
+#         stop= time.perf_counter()
+#         elapsed_time = stop - start
+#         print("Elapsed time: ", elapsed_time)
     
 
         
