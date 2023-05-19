@@ -19,6 +19,3 @@ Optimization:
     - 85
   - - 0
     - 85
-  range_cost:
-  - 0
-  - 50

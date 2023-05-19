@@ -2,174 +2,42 @@ import dash
 from dash import html, dcc, ctx
 from dash.dependencies import Output, Input, State
 import plotly.graph_objs as go
-from collections import deque
-import dash_bootstrap_components as dbc
 import numpy as np
 import yaml
 import math
 import requests
+from layouts import * 
 
 
 
 class UI:
     def __init__(self):
-        self.parameter1 = []  
-        self.parameter2 = []  
-        self.parameter3 = []  
-        self.parameter4 = []  
-        self.parameter5 = []  
-        self.parameter6 = [] 
-        self.GPy = []
-        self.Acq_data_plot = None
-        self.GP_data_plot = []
-        self.ECGy =[]
-        self.HistParm=[]
-        self.HistGP = []
-        self.previous_parm = 0
-
-        self.data = {}
-        self.dataECG = {}
+        self.reset()
 
         minmax = {1: "min", 2:"max"}
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
 
-        self.app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
+        self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
+                             external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
                 meta_tags=[{'name':'viewport',
                             'content':'width=device-width, initial-scale=0.7, maximum-scale=3, minimum-scale=0.5'}])
-        self.app.layout = html.Div([
-            html.H1('RRL: Human in the Loop optimization',style={'margin-left': '5px'}),
-            html.Br(),
-            html.Div([
-                dcc.Tabs(id='tabs-example', value='init', children=[
-                    dcc.Tab(label='Initialization', value='init'),
-                    dcc.Tab(label='Optimization', value='opt'),
-                    dcc.Tab(label='Signals', value='sig'),
-                    dcc.Tab(label='Hyperparameters', value='hyp')
-                ]),
-                html.Div(id='tabs-content'),
-            ]),
-            dcc.Interval(id="graph-update", interval=2500, disabled=False), 
-            dcc.Interval(id="server_timer", interval=500), 
-            dcc.Interval(id="ECG_timer", interval=2000), 
-            html.Div(id="hidden-div", children= None, style={"display":"none"}),
-        ])
+        self.app.layout = layout_main
 
 
         @self.app.callback(Output('tabs-content', 'children'),
               Input('tabs-example', 'value'))
         def render_content(tab):
             if tab == 'init':
-                return html.Div([
-                    html.Br(),
-                    html.Div([
-                        html.Br(),
-                        html.H3('Select the sensor:',style={'margin-left': '5px'}), 
-                        dcc.Dropdown(['ECG','Metabolic','COP'], 'ECG', id='sensor-dropdown',
-                                            style={'margin-left': '10px', 'margin-right': '30px'}, persistence=True),
-                        html.Br(),
-                        html.Br(),
-                        html.H3('Number of parameters:',style={'margin-left': '5px'}),   
-                        html.Br(),
-                        dcc.Slider(1,6,step=1,value=1,id='parm_slider',persistence=True),
-                    ],style={'width':'32%', 'display':'inline-block', 'vertical-align': 'top'}),
-
-                    html.Div(id='parmBox',
-                            style={'width':'420px', 'display':'inline-block', 'vertical-align': 'top','margin-left':'50px', 'margin-right':'30px'}),  
-
-                    html.Div([      
-                        html.Br(),  
-                        html.Div([
-                                html.Div([
-                                    html.H3('Select type of Gaussian process:'),
-                                    dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown',
-                                            style={'margin-left': '0px', 'margin-right': '0px', 'width': '200px'}, persistence=True)
-                                    ], style={'margin-left': '0px'}),
-                                html.Br(),     
-                                html.Div([
-                                    html.H3('Select type of Acquisition function:'),
-                                    dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
-                                            style={'margin-left': '0px', 'margin-right': '0px', 'width': '200px'}, persistence=True)
-                                    ], style={'margin-left': '0px'}),
-                                html.Br(),
-                                html.H3('Cost', style={'margin-left': '0px'}),
-                                html.Div([dcc.Input(id=f'inputCost-{j}',placeholder=minmax[j+1],type='number',
-                                    style={'margin-left': '0px'}, persistence=True, persistence_type='memory') for j in range(2)]),
-
-                                html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
-                                    style={'width': '200px', 'height':'100px', 'margin-left':'150px', 
-                                        'margin-top':'100px','border-radius':'10px',}),    
-                                ])          
-                    ],style={'width':'32%', 'display':'inline-block',})                        
-                ], style={'margin':'0px'})
+                return layout_init
             
             elif tab == 'opt':
-                return html.Div([
-                    html.Div([
-                        html.Br(),
-                        html.Div([
-                            html.Br(),
-                            html.H3('Gaussian Process'),
-                            html.Br(),
-                            dcc.Graph(id='live_GP'),  #, animate=True
-                            dcc.Store(id='dataGP')   
-                        ], style={'padding':10, 'flex':1}),
-            
-                        html.Div([
-                            html.Br(),
-                            html.H3('Acquisition function'),
-                            html.Br(),
-                            dcc.Graph(id='live_Acq'),
-                        ], style={'padding':10, 'flex':1}), 
-
-                    ],style={'display':'flex', 'flex-direction':'row'}),
-
-                    html.Button(id='clear_button',className='btn btn-secondary',children='CLEAR', 
-                                style={'width': '300px', 'height':'100px', 'margin-left':'200px', 'margin-top':'20px','border-radius':'10px'}), 
-
-                    html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
-                                style={'width': '300px', 'height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}), 
-
-                    html.Button(id='resume_button',className='btn btn-secondary',children='RESUME', 
-                                style={'width': '300px','height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}),
-                ])
+                return layout_opt
                     
             elif tab == 'sig':
-                return html.Div([
-                        html.Br(),
-                        html.Div([
-                            html.Br(),
-                            html.H3('Biofeedback signal'),
-                            html.Br(),
-                            dcc.Graph(id='live_ECG')
-                        ], style={'padding':20, 'flex':1}),
-            
-                        html.Div([
-                            html.Br(),
-                            html.H3('Parameter/iterations'),
-                            html.Br(),
-                            dcc.Graph(id='live_parm'),
-                        ], style={'padding':20, 'flex':1}), 
-                    ],style={'display':'flex', 'flex-direction':'row'})
-            
+                return layout_sig
+ 
             elif tab == 'hyp':
-                return html.Div([
-                        html.Br(),
-                        html.Div([
-                            html.Br(),
-                            html.H3('Hyperparameters'),
-                            html.Br(),
-                            dcc.Graph(id='live_sigma')
-                        ], style={'padding':20, 'flex':1}),
-            
-                        html.Div([
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            dcc.Graph(id='live_L'),
-                        ], style={'padding':20, 'flex':1}), 
-                    ],style={'display':'flex', 'flex-direction':'row'})
-
+                return layout_hyp
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                     Input('server_timer', 'n_intervals'),
@@ -185,26 +53,6 @@ class UI:
             if n is not None:
                 self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
 
-        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
-                           Input('clear_button', 'n_clicks'),
-                           prevent_initial_call=True)
-        def clear_UIstack(n):
-            if "clear_button" == ctx.triggered_id:
-                self.parameter1 = []  
-                self.parameter2 = []  
-                self.parameter3 = []  
-                self.parameter4 = []  
-                self.parameter5 = []  
-                self.parameter6 = [] 
-                self.GPy = []
-                self.Acq_data_plot = None
-                self.GP_data_plot = []
-                self.ECGy =[]
-                self.HistParm = []
-                self.HistGP = []
-                self.previous_parm = 0
-                self.data = {}
-                self.dataECG = {}
 
         @self.app.callback(Output('parmBox','children'),
                     Input('parm_slider','value'),)
@@ -221,7 +69,6 @@ class UI:
                     Input('graph-update', 'n_intervals'))   
         def update_graphGP(n):
             [parmMin, parmMax]= config['Optimization']['range'][0]
-            [costMin, costMax]= config['Optimization']['range_cost']
             n_parm = config['Optimization']['n_parms']
 
             data_plot = self.data['Change_parm']['data_plot']
@@ -229,21 +76,23 @@ class UI:
             data_gp = self.data['plot_data_GP']['data_gp']
             time_inlet_gp = self.data['plot_data_GP']['time_inlet_gp']
     
-            
             match n_parm:
-                case 1:
-                    if len(time_inlet_gp):
-                        gp_list = [i[0] for i in data_gp]
-                        self.GP_data_plot = gp_list
+                case 1:                   
                     if time_inlet is not None:
                         self.parameter1.append(data_plot[1])
                         self.GPy.append(data_plot[0])
+                        data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
+                        self.HistGP = [data]
+
+                    if time_inlet_gp is not None:
+                        gp_list = [i[0] for i in data_gp]
+                        self.GP_data_plot = gp_list
+                    if not(self.GP_data_plot == []): 
+                        data_1 = go.Scatter(x=list(np.linspace(0,85,100)), y=self.GP_data_plot, name='GP', mode="lines")
+                        self.HistGP = [data, data_1]
+                    
                     layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                                             yaxis=dict(title='Cost'))
-                    data = go.Scatter(x=list(self.parameter1), y=list(self.GPy), name='cost_sample', mode="markers")
-                    if self.GP_data_plot is not None:
-                        data_1 = go.Scatter(x=list(np.linspace(0,85,100)), y=self.GP_data_plot, name='GP', mode="lines")
-                    self.HistGP = [data, data_1]
                     return {'data':self.HistGP, 'layout':layout}
                 
                 case 2:
@@ -325,14 +174,11 @@ class UI:
         @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphECG(n):
-            
             data_ecg = self.dataECG['polar ECG']['data_ecg']
             if data_ecg is not None:
                 self.ECGy = np.array(data_ecg).flatten()
-            
-            layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
             data = go.Scatter(y=self.ECGy, name='ECG', mode="lines")
-            return {'data':[data], 'layout':layout}
+            return {'data':[data]}
 
 
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
@@ -341,8 +187,6 @@ class UI:
             n_parm = config['Optimization']['n_parms']
             time_inlet = self.data['Change_parm']['time_inlet']
             data_plot = self.data['Change_parm']['data_plot']
-            
-            layout = go.Layout(xaxis = dict(title='Iterations'),yaxis=dict(title='Parameter value'),title='Parameters')
             if time_inlet is not None and not(time_inlet == self.previous_parm):
                 self.previous_parm = time_inlet
                 if n_parm>=1: 
@@ -370,7 +214,7 @@ class UI:
                                             data6 = go.Scatter(y=self.parameter6, name='Parameter6', mode="lines")  
                                             self.HistParm = [data1, data2, data3, data4, data5, data6]
                 
-            return {'data':self.HistParm, 'layout':layout}
+            return {'data':self.HistParm}
 
 
         # @app.callback(
@@ -415,6 +259,31 @@ class UI:
                     return 'SUBMITTED'
                 else:
                     return 'SUBMIT'
+                
+
+        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
+                           Input('clear_button', 'n_clicks'),
+                           prevent_initial_call=True)
+        def clear_UIstack(n):
+            if n is not None and "clear_button" == ctx.triggered_id:
+                self.reset()
+        
+    def reset(obj):
+        obj.parameter1 = []  
+        obj.parameter2 = []  
+        obj.parameter3 = []  
+        obj.parameter4 = []  
+        obj.parameter5 = []  
+        obj.parameter6 = [] 
+        obj.GPy = []
+        obj.Acq_data_plot = None
+        obj.GP_data_plot = []
+        obj.ECGy =[]
+        obj.HistParm=[]
+        obj.HistGP = []
+        obj.previous_parm = 0
+        obj.data = {}
+        obj.dataECG = {}
                 
 
         

@@ -33,8 +33,12 @@ def list_OptimizationData():
         "plot_data_GP": {"data_gp": saved.gp, "time_inlet_gp": saved.time_inlet_gp},
     }
     return in_memory_datastore
+
 @app.get('/polarECG')
 def list_ECGData():
+    data_ecg, time_inlet_ecg = inlet_ecg.pull_chunk(timeout=0.2)
+    if not (data_ecg == []):
+        saved.ecg = data_ecg
     in_memory_datastore = {
         "polar ECG": {"data_ecg": saved.ecg},
     }
@@ -44,20 +48,15 @@ def list_ECGData():
 async def run_code():
    while True:
       
-      data_plot, time_inlet = inlet.pull_sample(timeout=0.0)
+      data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
       if data_plot is not None:
          saved.plot = data_plot
          saved.time_inlet = time_inlet
 
-      data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.0)
+      data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.1)
       if not (data_gp == []):
          saved.gp = data_gp
          saved.time_inlet_gp = time_inlet_gp
-
-      data_ecg, time_inlet_ecg = inlet_ecg.pull_chunk(timeout=0.0)
-      if not (data_ecg == []):
-         saved.ecg = data_ecg
-
 
 if __name__ == '__main__':
    loop = asyncio.get_event_loop()
