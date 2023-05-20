@@ -4,11 +4,9 @@ from dash.dependencies import Output, Input, State
 import plotly.graph_objs as go
 import numpy as np
 import yaml
-import math
 import requests
 from layouts import * 
 from callbacks import *
-
 
 
 class UI:
@@ -93,7 +91,7 @@ class UI:
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphPARM(n):
-            update_figureParmIter = updateParmIterationGraph(self, config)
+            update_figureParmIter = updateParmIterationGraph(self)
             return update_figureParmIter
 
 
