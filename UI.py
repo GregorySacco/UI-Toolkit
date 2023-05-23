@@ -12,9 +12,7 @@ from callbacks import *
 class UI:
     def __init__(self):
         reset(self)
-
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
-
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
                              external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
                 meta_tags=[{'name':'viewport',
@@ -36,13 +34,14 @@ class UI:
  
             elif tab == 'hyp':
                 return layout_hyp
+            
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                     Input('server_timer', 'n_intervals'),
                     prevent_initial_call=True)
         def download_server(n):
-            if n is not None:
-                self.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
+            download_data(self,config,n)
+           
         
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                     Input('ECG_timer', 'n_intervals'),
@@ -91,7 +90,8 @@ class UI:
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphPARM(n):
-            update_figureParmIter = updateParmIterationGraph(self)
+            n_parm = config['Optimization']['n_parms']
+            update_figureParmIter = updateParmIterationGraph(self, n_parm)
             return update_figureParmIter
 
 

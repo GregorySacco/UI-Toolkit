@@ -47,16 +47,15 @@ def list_ECGData():
 
 async def run_code():
    while True:
-      
-      data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
-      if data_plot is not None:
-         saved.plot = data_plot
-         saved.time_inlet = time_inlet
-
-      data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.1)
-      if not (data_gp == []):
-         saved.gp = data_gp
-         saved.time_inlet_gp = time_inlet_gp
+        data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
+        if data_plot is not None and data_plot != saved.plot:
+            print(data_plot)
+            saved.plot = data_plot
+            saved.time_inlet = time_inlet
+        data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.1)
+        if not (data_gp == []):
+            saved.gp = data_gp
+            saved.time_inlet_gp = time_inlet_gp
 
 if __name__ == '__main__':
    loop = asyncio.get_event_loop()

@@ -36,83 +36,47 @@
 
             
 
-# main = app()
-# if __name__ == '__main__':
-#             main.app.run_server(debug=True, port = 8080) # host='0.0.0.0')
-
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-# # Dati delle tre variabili
-# x = [1, 2, 3, 4, 5]
-# y = [2, 4, 1, 5, 3]
-# z = [3, 1, 5, 2, 4]
-# data= []
-
-# # Valori della quarta variabile per l'opacità
-# fourth_variable = [1, 2, 3, 4, 5]
-
-# # Valori della quinta variabile per la dimensione dei puntini
-# fifth_variable = [1, 2, 3, 4, 5]
-
-# # Normalizzazione della quarta variabile tra 0 e 1 per l'opacità
-# opacity = np.interp(fourth_variable, (np.min(fourth_variable), np.max(fourth_variable)), (0.1, 1.0))
-# print(opacity[0])
-
-# # Normalizzazione della quinta variabile per la dimensione dei puntini
-# size = np.interp(fifth_variable, (np.min(fifth_variable), np.max(fifth_variable)), (10, 100))
-
-# # Creazione del grafico 3D
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-
-# # Rappresentazione dei punti con opacità e dimensione dei puntini basate sulle variabili
-# for i in range(len(x)):
-
-#     scatter = ax.scatter(x[i], y[i], z[i], c='b', alpha=opacity[i], s=size[i])
-
-
-# # Etichette degli assi
-# ax.set_xlabel('X')
-# ax.set_ylabel('Y')
-# ax.set_zlabel('Z')
-
-# # Visualizzazione del grafico
-# plt.show()
-
 import plotly.graph_objects as go
 import plotly.io as pio
 import numpy as np
 import dash
 from dash import html, dcc
 
-x = [[1], [2], [3], [4], [5]]
-y = [[2], [4], [1], [5], [3]]
-z = [[3], [1], [5], [2], [4]]
 
-fourth_variable = [1, 5, 2, 4, 3]
-fifth_variable = [4, 1, 2, 3, 5]
+ranges = [0.0, 0.85]
 
-opacity = np.interp(fourth_variable, (np.min(fourth_variable), np.max(fourth_variable)), (0.1, 1.0))
+parm1 = [0.18, 0.52, 0.32, 0.14, 0.75]
+parm2 = [0.72, 0.84, 0.12, 0.05, 0.37]
+parm3 = [0.1, 0.55, 0.32, 0.7, 0.85]
+parm4 = [0.4, 0.08, 0.2, 0.34, 0.65]
+parm5 = [0.0, 0.85, 0.54, 0.0, 0.85]
+parm6 = [0.85, 0.0, 0.23, 0.0, 0.85]
 
-size = np.interp(fifth_variable, (np.min(fifth_variable), np.max(fifth_variable)), (2, 12))
+cost = [-10, -21, -25, -32, -14]
 
-traces= []
-for i in range(len(x)):
-    trace = go.Scatter3d(x=list(x[i]),y=list(y[i]),z=list(z[i]),
+
+opacity = np.interp(parm3, (np.min(ranges), np.max(ranges)), (0.2, 1.0))
+size = np.interp(parm4, (np.min(ranges), np.max(ranges)), (2, 12))
+normalized_green = [(value - min(ranges)) / (max(ranges) - min(ranges)) for value in parm5]
+normalized_blue = [(value - min(ranges)) / (max(ranges) - min(ranges)) for value in parm6]
+colors = ['rgb({}, {}, {})'.format(0, int(255 * (green)), int(255 * (blue))) for green, blue in zip(normalized_green, normalized_blue)]
+
+hover_info = [[f'parm1: {x}<br>parm2: {y}<br>parm3: {fv}<br>parm4: {sv}<br>parm5: {tv}<br>parm6: {uv}<br>cost: {z}']
+              for x, y, fv, sv, tv, uv, z in zip(parm1, parm2, parm3, parm4, parm5, parm6, cost)]
+
+samples= []
+for i in range(len(parm1)):
+    sample = go.Scatter3d(x=np.array(parm1[i]),y=np.array(parm2[i]),z=np.array(cost[i]),
         mode='markers',
         showlegend=False,
-        marker=dict(
-            color='blue',
-            opacity=opacity[i],
-            size=size[i]
-        )
+        marker=dict(color=colors[i],opacity=opacity[i],size=size[i]),
+        hovertemplate='%{customdata}', 
+        customdata=hover_info[i]
     )
-    traces.append(trace)
+    samples.append(sample)
 
-layout = go.Layout(scene=dict(xaxis_title='X',yaxis_title='Y',zaxis_title='Z'))
-
-fig = go.Figure(data=traces, layout=layout)
+layout = go.Layout(scene=dict(xaxis_title='param1',yaxis_title='param2',zaxis_title='Cost'))
+fig = go.Figure(data=samples, layout=layout)
 
 app = dash.Dash(__name__)
 app.layout = html.Div([
@@ -121,4 +85,3 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
