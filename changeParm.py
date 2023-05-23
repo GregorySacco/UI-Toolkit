@@ -18,7 +18,7 @@ for info in streams:
     #     print(info.channel_count())
 
 
-stream =resolve_stream('name','Change_parm')
+stream =resolve_stream('name','Hyp_parm')
 inlet=StreamInlet(stream[0])
 
 while True:

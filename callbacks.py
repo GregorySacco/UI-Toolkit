@@ -3,14 +3,13 @@ import math
 import numpy as np
 import requests
 
-def download_data(obj, config, n):
+def download_data(obj, config):
     n_parm = config['Optimization']['n_parms']
-    if n is not None:
-        obj.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
-        data_plot = obj.data['Change_parm']['data_plot']
-        obj.time_inlet = obj.data['Change_parm']['time_inlet']
-        data_gp = obj.data['plot_data_GP']['data_gp']
-        obj.time_inlet_gp = obj.data['plot_data_GP']['time_inlet_gp']
+    obj.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
+    data_plot = obj.data['Change_parm']['data_plot']
+    obj.time_inlet = obj.data['Change_parm']['time_inlet']
+    data_gp = obj.data['plot_data_GP']['data_gp']
+    obj.time_inlet_gp = obj.data['plot_data_GP']['time_inlet_gp']
     if obj.time_inlet is not None and data_plot[0] and obj.time_inlet != obj.previous_data:
         obj.previous_data = obj.time_inlet
         obj.GPy.append(data_plot[0]) 
@@ -128,22 +127,6 @@ def updateParmIterationGraph(obj, n_parm):
     return {'data': obj.HistParm}
 
 
-def reset(obj):
-    obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
-    obj.GPy = []
-    obj.Acq_data_plot = None
-    obj.GP_data_plot = []
-    obj.ECGy =[]
-    obj.HistParm=[]
-    obj.HistGP = []
-    obj.time_inlet = None
-    obj.time_inlet_gp = None
-    obj.previous_parm = None
-    obj.previous_data = None
-    obj.data = {}
-    obj.dataECG = {}
-
-
 def from3To6parm(obj, config):
     [parmMin, parmMax]= config['Optimization']['range'][0]
     n_parm = config['Optimization']['n_parms']
@@ -182,6 +165,21 @@ def from3To6parm(obj, config):
         )
         samples.append(sample)   
     return samples   
+
+def reset(obj):
+    obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
+    obj.GPy = []
+    obj.Acq_data_plot = None
+    obj.GP_data_plot = []
+    obj.ECGy =[]
+    obj.HistParm=[]
+    obj.HistGP = []
+    obj.time_inlet = None
+    obj.time_inlet_gp = None
+    obj.previous_parm = None
+    obj.previous_data = None
+    obj.data = {}
+    obj.dataECG = {}
         
         
     

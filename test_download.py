@@ -37,51 +37,85 @@
             
 
 import plotly.graph_objects as go
-import plotly.io as pio
+
 import numpy as np
 import dash
 from dash import html, dcc
 
 
-ranges = [0.0, 0.85]
+import plotly.graph_objects as go
+import numpy as np
 
-parm1 = [0.18, 0.52, 0.32, 0.14, 0.75]
-parm2 = [0.72, 0.84, 0.12, 0.05, 0.37]
-parm3 = [0.1, 0.55, 0.32, 0.7, 0.85]
-parm4 = [0.4, 0.08, 0.2, 0.34, 0.65]
-parm5 = [0.0, 0.85, 0.54, 0.0, 0.85]
-parm6 = [0.85, 0.0, 0.23, 0.0, 0.85]
+# Generazione dei dati di esempio
+x = np.linspace(-5, 5, 100)
+y = np.linspace(-5, 5, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(np.sqrt(X**2 + Y**2))
+A = np.cos(X)
+B = np.sin(Y)
+C = np.cos(X*Y)
+D = np.sin(X/Y)
 
-cost = [-10, -21, -25, -32, -14]
-
-
-opacity = np.interp(parm3, (np.min(ranges), np.max(ranges)), (0.2, 1.0))
-size = np.interp(parm4, (np.min(ranges), np.max(ranges)), (2, 12))
-normalized_green = [(value - min(ranges)) / (max(ranges) - min(ranges)) for value in parm5]
-normalized_blue = [(value - min(ranges)) / (max(ranges) - min(ranges)) for value in parm6]
-colors = ['rgb({}, {}, {})'.format(0, int(255 * (green)), int(255 * (blue))) for green, blue in zip(normalized_green, normalized_blue)]
-
-hover_info = [[f'parm1: {x}<br>parm2: {y}<br>parm3: {fv}<br>parm4: {sv}<br>parm5: {tv}<br>parm6: {uv}<br>cost: {z}']
-              for x, y, fv, sv, tv, uv, z in zip(parm1, parm2, parm3, parm4, parm5, parm6, cost)]
-
-samples= []
-for i in range(len(parm1)):
-    sample = go.Scatter3d(x=np.array(parm1[i]),y=np.array(parm2[i]),z=np.array(cost[i]),
-        mode='markers',
-        showlegend=False,
-        marker=dict(color=colors[i],opacity=opacity[i],size=size[i]),
-        hovertemplate='%{customdata}', 
-        customdata=hover_info[i]
+data = []
+# Creazione del plot di superficie
+data1=go.Surface(
+        x=X, y=Y, z=Z,
+        surfacecolor=A,  # Colore in base ad A
+        colorscale='Viridis',
+        cmin=np.min(A),
+        cmax=np.max(A),
+        name='A',
+        showscale=False
     )
-    samples.append(sample)
+data.append(data1)
+data2 = go.Surface(
+        x=X, y=Y, z=Z,
+        surfacecolor=B,  # Colore in base a B
+        colorscale='Reds',
+        cmin=np.min(B),
+        cmax=np.max(B),
+        name='B',
+        showscale=False
+    ),
+data.append(data2)
+data3 = go.Surface(
+        x=X, y=Y, z=Z,
+        surfacecolor=D,  # Colore in base a D
+        colorscale='Blues',
+        cmin=np.min(D),
+        cmax=np.max(D),
+        name='D',
+        showscale=False
+    ),
+data.append(data3)
 
-layout = go.Layout(scene=dict(xaxis_title='param1',yaxis_title='param2',zaxis_title='Cost'))
-fig = go.Figure(data=samples, layout=layout)
+data4 = go.Surface(
+        x=X, y=Y, z=Z,
+        surfacecolor=C,  # Colore in base a C
+        colorscale='Greens',
+        cmin=np.min(C),
+        cmax=np.max(C),
+        name='C',
+        showscale=False
+    )
+data.append(data4)
+print(data)
+# data = [[data1], [data2], [data3], [data4]]
 
-app = dash.Dash(__name__)
-app.layout = html.Div([
-    dcc.Graph(figure=fig)
-])
+fig = go.Figure(data)
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# Layout del grafico
+fig.update_layout(
+    title='Superficie in 7 dimensioni',
+    scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z',
+        aspectmode='cube'
+    )
+)
+
+# Visualizzazione del grafico
+fig.show()
+
+

@@ -11,6 +11,8 @@ class Store:
         self.gp = None
         self.time_inlet_gp = None
         self.ecg = None
+        self.hyp = None 
+        self.time_inlet_hyp = None
 
 saved = Store()
 
@@ -24,6 +26,8 @@ streams = resolve_stream('name', 'plot_data_GP')
 inlet_gp = StreamInlet(streams[0])
 streams = resolve_stream('name', 'polar ECG')
 inlet_ecg = StreamInlet(streams[0])
+streams = resolve_stream('name', 'Hyp_parm')
+inlet_hyp = StreamInlet(streams[0])
 
 
 @app.get('/OptimizationData')
@@ -31,6 +35,7 @@ def list_OptimizationData():
     in_memory_datastore = {
         "Change_parm": {"data_plot": saved.plot, "time_inlet": saved.time_inlet},
         "plot_data_GP": {"data_gp": saved.gp, "time_inlet_gp": saved.time_inlet_gp},
+        "Hyp_parm": {"data_Hyp": saved.hyp, "time_inlet_hyp": saved.time_inlet_hyp},
     }
     return in_memory_datastore
 
@@ -49,13 +54,19 @@ async def run_code():
    while True:
         data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
         if data_plot is not None and data_plot != saved.plot:
-            print(data_plot)
             saved.plot = data_plot
             saved.time_inlet = time_inlet
+
         data_gp, time_inlet_gp = inlet_gp.pull_chunk(timeout=0.1)
         if not (data_gp == []):
             saved.gp = data_gp
             saved.time_inlet_gp = time_inlet_gp
+
+        data_hyp, time_inlet_hyp = inlet_hyp.pull_sample(timeout=0.1)
+        if data_hyp is not None and data_hyp != saved.hyp:
+            print(data_plot)
+            saved.hyp = data_hyp
+            saved.time_inlet_hyp = time_inlet_hyp
 
 if __name__ == '__main__':
    loop = asyncio.get_event_loop()

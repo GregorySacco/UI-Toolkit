@@ -40,7 +40,8 @@ class UI:
                     Input('server_timer', 'n_intervals'),
                     prevent_initial_call=True)
         def download_server(n):
-            download_data(self,config,n)
+            if n is not None:
+                download_data(self,config)
            
         
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
