@@ -63,20 +63,14 @@ class UI:
                         html.Div([dcc.Input(id=f'input{i}{j}', type='number', placeholder=minmax[j+1],
                                             persistence=True, persistence_type='memory') for j in range(2)])]) for i in range(n)]) 
             
-
-        @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
-        def update_graphGP(n):
-            figure_update = updateLiveGP(self, config)
-            return figure_update
         
-        # @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
-        #             Input('graph-update', 'n_intervals'),
-        #             State('x-input','value'),
-        #             State('y-input','value'))   
-        # def update_graphGP(n, x, y):
-        #     figure_update = updateLiveGP(self, config, x, y)
-        #     return figure_update
+        @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'),
+                    State('x-input','value'),
+                    State('y-input','value'))   
+        def update_graphGP(n, x, y):
+            figure_update = updateLiveGP(self, config, x, y)
+            return figure_update
                 
 
         # @self.app.callback(Output(component_id="live_Acq", component_property="figure"), 

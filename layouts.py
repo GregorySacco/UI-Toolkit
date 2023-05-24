@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 layout_main = html.Div([
             html.H1('RRL: Human in the Loop optimization',style={'margin-left': '5px'}),
             html.Div([
-                dcc.Tabs(id='tabs-example', value='opt', children=[
+                dcc.Tabs(id='tabs-example', value='init', children=[
                     dcc.Tab(label='Initialization', value='init'),
                     dcc.Tab(label='Optimization', value='opt'),
                     dcc.Tab(label='Signals', value='sig'),
@@ -81,9 +81,9 @@ layout_opt=html.Div([
                     # ]),
                     html.Div([
                         html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
-                        dcc.Input(id='x-input', type='number', placeholder='x-axis', persistence=True, persistence_type='memory',
+                        dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
                                   style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                        dcc.Input(id='y-input', type='number', placeholder='y-axis', persistence=True, persistence_type='memory',
+                        dcc.Input(id='y-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
                                   style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
                     ]), 
 
