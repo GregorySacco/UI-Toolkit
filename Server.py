@@ -16,10 +16,9 @@ class Store:
 
 saved = Store()
 
-streams = resolve_streams()
-for info in streams:
-    print(info.name())
-
+# streams = resolve_streams()
+# for info in streams:
+#     print(info.name())
 streams = resolve_stream('name', 'Change_parm')
 inlet = StreamInlet(streams[0])
 streams = resolve_stream('name', 'plot_data_GP')
@@ -51,7 +50,7 @@ def list_ECGData():
 
 
 async def run_code():
-   while True:
+    while True:
         data_plot, time_inlet = inlet.pull_sample(timeout=0.1)
         if data_plot is not None and data_plot != saved.plot:
             saved.plot = data_plot

@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 layout_main = html.Div([
             html.H1('RRL: Human in the Loop optimization',style={'margin-left': '5px'}),
             html.Div([
-                dcc.Tabs(id='tabs-example', value='init', children=[
+                dcc.Tabs(id='tabs-example', value='opt', children=[
                     dcc.Tab(label='Initialization', value='init'),
                     dcc.Tab(label='Optimization', value='opt'),
                     dcc.Tab(label='Signals', value='sig'),
@@ -62,30 +62,39 @@ layout_opt=html.Div([
                     html.Div([
                         html.Br(),
                         html.Div([
-                            # html.Br(),
                             html.H3('Gaussian Process'),
-                            # html.Br(),
-                            dcc.Graph(id='live_GP'),  
-                            # dcc.Store(id='dataGP')   
+                            dcc.Graph(id='live_GP'),    
                         ], style={'padding':10, 'flex':1}),
             
                         html.Div([
-                            # html.Br(),
                             html.H3('Acquisition function'),
-                            # html.Br(),
                             dcc.Graph(id='live_Acq'),
                         ], style={'padding':10, 'flex':1}), 
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
 
+                    # html.Div([
+                    #     dcc.Dropdown(['1','2','3','4','5','6'], '1', id='GPx-dropdown',
+                    #                         style={'margin-left': '2%', 'margin-top':'2%', 'width': '30%'}, persistence=True),
+                    #     dcc.Dropdown(['1','2','3','4','5','6'], '1', id='GPy-dropdown',
+                    #                         style={'margin-left': '2%', 'margin-top':'20px', 'width': '30%'}, persistence=True),
+                    # ]),
+                    html.Div([
+                        html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
+                        dcc.Input(id='x-input', type='number', placeholder='x-axis', persistence=True, persistence_type='memory',
+                                  style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
+                        dcc.Input(id='y-input', type='number', placeholder='y-axis', persistence=True, persistence_type='memory',
+                                  style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
+                    ]), 
+
                     html.Button(id='clear_button',className='btn btn-secondary',children='CLEAR', 
-                                style={'width': '300px', 'height':'100px', 'margin-left':'200px', 'margin-top':'20px','border-radius':'10px'}), 
+                                style={'width': '15%', 'height':'80px', 'margin-left':'48%', 'margin-top':'-4%','border-radius':'10px'}), 
 
                     html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
-                                style={'width': '300px', 'height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}), 
+                                style={'width': '15%', 'height':'80px', 'margin-left':'32px', 'margin-top':'-4%','border-radius':'10px'}), 
 
                     html.Button(id='resume_button',className='btn btn-secondary',children='RESUME', 
-                                style={'width': '300px','height':'100px', 'margin-left':'32px', 'margin-top':'20px','border-radius':'10px'}),
+                                style={'width': '15%','height':'80px', 'margin-left':'32px', 'margin-top':'-4%','border-radius':'10px'}),
                 ],style={"width": "100 %"})
 
 layout_sig=html.Div([
@@ -107,32 +116,32 @@ layout_sig=html.Div([
             ],style={'display':'flex', 'flex-direction':'row'})
 
 layout_hyp = html.Div([
-                        html.Br(),
-                        html.Div([
-                            html.Br(),
-                            dcc.Graph(id='live_hyp1', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
-                            html.Br(),
-                            dcc.Graph(id='live_hyp4', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
-                        ], style={'padding':1, 'flex':1}),
-            
-                        html.Div([
-                            html.Br(),
-                            dcc.Graph(id='live_hyp2', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
-                            html.Br(),
-                            dcc.Graph(id='live_hyp5', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Hyperparameter 5','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
-                        ], style={'padding':1, 'flex':1}), 
+                html.Br(),
+                html.Div([
+                    html.Br(),
+                    dcc.Graph(id='live_hyp1', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                    html.Br(),
+                    dcc.Graph(id='live_hyp4', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                ], style={'padding':1, 'flex':1}),
+    
+                html.Div([
+                    html.Br(),
+                    dcc.Graph(id='live_hyp2', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
+                    html.Br(),
+                    dcc.Graph(id='live_hyp5', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Hyperparameter 5','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
+                ], style={'padding':1, 'flex':1}), 
 
-                        html.Div([
-                            html.Br(),
-                            dcc.Graph(id='live_hyp3', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
-                            html.Br(),
-                            dcc.Graph(id='live_hyp6', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'Hyperparameter 6','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
-                        ], style={'padding':1, 'flex':1}), 
+                html.Div([
+                    html.Br(),
+                    dcc.Graph(id='live_hyp3', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                    html.Br(),
+                    dcc.Graph(id='live_hyp6', style={"height": "37vh"}, figure={
+                        'layout' : {'title': 'Hyperparameter 6','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
+                ], style={'padding':1, 'flex':1}), 
 
-                    ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
+            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),

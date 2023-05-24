@@ -69,6 +69,14 @@ class UI:
         def update_graphGP(n):
             figure_update = updateLiveGP(self, config)
             return figure_update
+        
+        # @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
+        #             Input('graph-update', 'n_intervals'),
+        #             State('x-input','value'),
+        #             State('y-input','value'))   
+        # def update_graphGP(n, x, y):
+        #     figure_update = updateLiveGP(self, config, x, y)
+        #     return figure_update
                 
 
         # @self.app.callback(Output(component_id="live_Acq", component_property="figure"), 
