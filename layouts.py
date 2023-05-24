@@ -111,8 +111,8 @@ layout_hyp = html.Div([
                         html.Br(),
                         html.Div([
                             html.Br(),
-                            dcc.Graph(id='graph1', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                            dcc.Graph(id='live_hyp1', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                             html.Br(),
                             dcc.Graph(id='graph4', style={"height": "37vh"}, figure={
                                 'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  

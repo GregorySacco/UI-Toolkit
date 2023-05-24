@@ -10,6 +10,13 @@ def download_data(obj, config):
     obj.time_inlet = obj.data['Change_parm']['time_inlet']
     data_gp = obj.data['plot_data_GP']['data_gp']
     obj.time_inlet_gp = obj.data['plot_data_GP']['time_inlet_gp']
+    data_hyp = obj.data['Hyp_parm']['data_hyp']
+    obj.time_inlet_hyp = obj.data['Hyp_parm']['time_inlet_hyp']
+    hyp_order = {1: 'likelihood.noise_covar.raw_noise',
+                 2: 'mean_module.raw_constant',
+                 3: 'covar_module.raw_outputscale',
+                 4: 'covar_module.base_kernel.raw_lengthscale'}
+
     if obj.time_inlet is not None and data_plot[0] and obj.time_inlet != obj.previous_data:
         obj.previous_data = obj.time_inlet
         obj.GPy.append(data_plot[0]) 
@@ -27,6 +34,11 @@ def download_data(obj, config):
                 n = len(gp_list)
                 gp_size = int(math.sqrt(n))
                 obj.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+    
+    if obj.time_inlet_hyp is not None and data_hyp[0] and obj.time_inlet_hyp != obj.previous_hyp:
+        obj.previous_hyp = obj.time_inlet_hyp
+        for i in range(1, len(data_hyp)+1):
+            obj.hyperparameters[hyp_order[i]].append(data_hyp[i-1])
 
 def updateLiveGP(obj, config):
     [parmMin, parmMax]= config['Optimization']['range'][0]
@@ -126,6 +138,12 @@ def updateParmIterationGraph(obj, n_parm):
             obj.HistParm.append(data)
     return {'data': obj.HistParm}
 
+def updateHyperParm(obj, hyp_name):
+    if obj.time_inlet_hyp is not None:
+        data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'Hyper {hyp_name}', mode="lines")
+        obj.HistHyp[hyp_name] = data  
+    return obj.HistHyp[hyp_name]
+
 
 def from3To6parm(obj, config):
     [parmMin, parmMax]= config['Optimization']['range'][0]
@@ -168,16 +186,26 @@ def from3To6parm(obj, config):
 
 def reset(obj):
     obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
+    obj.hyperparameters = {'likelihood.noise_covar.raw_noise':[],
+                            'mean_module.raw_constant':[],
+                            'covar_module.raw_outputscale':[],
+                            'covar_module.base_kernel.raw_lengthscale':[]}
     obj.GPy = []
     obj.Acq_data_plot = None
     obj.GP_data_plot = []
     obj.ECGy =[]
-    obj.HistParm=[]
+    obj.HistParm = []
     obj.HistGP = []
+    obj.HistHyp = {'likelihood.noise_covar.raw_noise':[],
+                    'mean_module.raw_constant':[],
+                    'covar_module.raw_outputscale':[],
+                    'covar_module.base_kernel.raw_lengthscale':[]}
     obj.time_inlet = None
     obj.time_inlet_gp = None
+    obj.time_inlet_hyp = None
     obj.previous_parm = None
     obj.previous_data = None
+    obj.previous_hyp = None
     obj.data = {}
     obj.dataECG = {}
         

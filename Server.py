@@ -35,7 +35,7 @@ def list_OptimizationData():
     in_memory_datastore = {
         "Change_parm": {"data_plot": saved.plot, "time_inlet": saved.time_inlet},
         "plot_data_GP": {"data_gp": saved.gp, "time_inlet_gp": saved.time_inlet_gp},
-        "Hyp_parm": {"data_Hyp": saved.hyp, "time_inlet_hyp": saved.time_inlet_hyp},
+        "Hyp_parm": {"data_hyp": saved.hyp, "time_inlet_hyp": saved.time_inlet_hyp},
     }
     return in_memory_datastore
 

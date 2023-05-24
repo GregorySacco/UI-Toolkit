@@ -94,6 +94,15 @@ class UI:
             n_parm = config['Optimization']['n_parms']
             update_figureParmIter = updateParmIterationGraph(self, n_parm)
             return update_figureParmIter
+        
+        @self.app.callback(Output(component_id="live_hyp1", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP1(n):
+            update_hyp1 = updateHyperParm(self, 'likelihood.noise_covar.raw_noise')
+            layout = {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            print([update_hyp1])
+            return {'data':[update_hyp1], 'layout': layout}
+
 
 
         # @app.callback(
