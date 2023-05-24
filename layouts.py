@@ -94,8 +94,7 @@ layout_sig=html.Div([
                     html.Br(),
                     html.H3('Biofeedback signal'),
                     html.Br(),
-                    dcc.Graph(id='live_ECG', figure={'layout': go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')}
-            )
+                    dcc.Graph(id='live_ECG', figure={'layout': go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')})
                 ], style={'padding':20, 'flex':1}),
     
                 html.Div([
@@ -114,26 +113,26 @@ layout_hyp = html.Div([
                             dcc.Graph(id='live_hyp1', style={"height": "37vh"}, figure={
                                 'layout' : {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                             html.Br(),
-                            dcc.Graph(id='graph4', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                            dcc.Graph(id='live_hyp4', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                         ], style={'padding':1, 'flex':1}),
             
                         html.Div([
                             html.Br(),
-                            dcc.Graph(id='graph2', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
+                            dcc.Graph(id='live_hyp2', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
                             html.Br(),
-                            dcc.Graph(id='graph5', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
+                            dcc.Graph(id='live_hyp5', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Hyperparameter 5','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
                         ], style={'padding':1, 'flex':1}), 
 
                         html.Div([
                             html.Br(),
-                            dcc.Graph(id='graph3', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                            dcc.Graph(id='live_hyp3', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                             html.Br(),
-                            dcc.Graph(id='graph6', style={"height": "37vh"}, figure={
-                                'layout' : {'title': 'My Graph','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
+                            dcc.Graph(id='live_hyp6', style={"height": "37vh"}, figure={
+                                'layout' : {'title': 'Hyperparameter 6','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
                         ], style={'padding':1, 'flex':1}), 
 
                     ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),

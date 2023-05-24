@@ -3,6 +3,14 @@ import math
 import numpy as np
 import requests
 
+global hyp_order  
+hyp_order = {1: 'likelihood.noise_covar.raw_noise',
+                2: 'mean_module.raw_constant',
+                3: 'covar_module.raw_outputscale',
+                4: 'covar_module.base_kernel.raw_lengthscale',
+                5: 'hyperparameter 5',
+                6: 'hyperparameter 6'}
+
 def download_data(obj, config):
     n_parm = config['Optimization']['n_parms']
     obj.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
@@ -12,10 +20,6 @@ def download_data(obj, config):
     obj.time_inlet_gp = obj.data['plot_data_GP']['time_inlet_gp']
     data_hyp = obj.data['Hyp_parm']['data_hyp']
     obj.time_inlet_hyp = obj.data['Hyp_parm']['time_inlet_hyp']
-    hyp_order = {1: 'likelihood.noise_covar.raw_noise',
-                 2: 'mean_module.raw_constant',
-                 3: 'covar_module.raw_outputscale',
-                 4: 'covar_module.base_kernel.raw_lengthscale'}
 
     if obj.time_inlet is not None and data_plot[0] and obj.time_inlet != obj.previous_data:
         obj.previous_data = obj.time_inlet
@@ -140,9 +144,10 @@ def updateParmIterationGraph(obj, n_parm):
 
 def updateHyperParm(obj, hyp_name):
     if obj.time_inlet_hyp is not None:
+        obj.HistHyp[hyp_name] = []
         data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'Hyper {hyp_name}', mode="lines")
-        obj.HistHyp[hyp_name] = data  
-    return obj.HistHyp[hyp_name]
+        obj.HistHyp[hyp_name].append(data)
+    return {'data': obj.HistHyp[hyp_name]}
 
 
 def from3To6parm(obj, config):
@@ -186,20 +191,18 @@ def from3To6parm(obj, config):
 
 def reset(obj):
     obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
-    obj.hyperparameters = {'likelihood.noise_covar.raw_noise':[],
-                            'mean_module.raw_constant':[],
-                            'covar_module.raw_outputscale':[],
-                            'covar_module.base_kernel.raw_lengthscale':[]}
+    obj.hyperparameters = {hyp_order[1]:[], hyp_order[2]:[],
+                           hyp_order[3]:[], hyp_order[4]:[],
+                           hyp_order[5]:[], hyp_order[6]:[]}
     obj.GPy = []
     obj.Acq_data_plot = None
     obj.GP_data_plot = []
     obj.ECGy =[]
     obj.HistParm = []
     obj.HistGP = []
-    obj.HistHyp = {'likelihood.noise_covar.raw_noise':[],
-                    'mean_module.raw_constant':[],
-                    'covar_module.raw_outputscale':[],
-                    'covar_module.base_kernel.raw_lengthscale':[]}
+    obj.HistHyp = {hyp_order[1]:[], hyp_order[2]:[],
+                   hyp_order[3]:[], hyp_order[4]:[],
+                   hyp_order[5]:[], hyp_order[6]:[]}
     obj.time_inlet = None
     obj.time_inlet_gp = None
     obj.time_inlet_hyp = None

@@ -85,7 +85,9 @@ class UI:
             if data_ecg is not None:
                 self.ECGy = np.array(data_ecg).flatten()
             data = go.Scatter(y=self.ECGy, name='ECG', mode="lines")
-            return {'data':[data]}
+            layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
+            # layout = {'title': 'ECG'}
+            return {'data':[data], 'layout': layout}
 
 
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
@@ -93,15 +95,57 @@ class UI:
         def update_graphPARM(n):
             n_parm = config['Optimization']['n_parms']
             update_figureParmIter = updateParmIterationGraph(self, n_parm)
+            layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title='Parameter value'),title='Parameters')
+            update_figureParmIter['layout'] = layout
             return update_figureParmIter
         
         @self.app.callback(Output(component_id="live_hyp1", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP1(n):
-            update_hyp1 = updateHyperParm(self, 'likelihood.noise_covar.raw_noise')
+            update_hyp = updateHyperParm(self, hyp_order[1])
             layout = {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
-            print([update_hyp1])
-            return {'data':[update_hyp1], 'layout': layout}
+            update_hyp['layout'] = layout
+            return update_hyp
+                
+        @self.app.callback(Output(component_id="live_hyp2", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP2(n):
+            update_hyp = updateHyperParm(self, hyp_order[2])
+            layout = {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp['layout'] = layout
+            return update_hyp
+        
+        @self.app.callback(Output(component_id="live_hyp3", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP3(n):
+            update_hyp = updateHyperParm(self, hyp_order[3])
+            layout = {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp['layout'] = layout
+            return update_hyp
+        
+        @self.app.callback(Output(component_id="live_hyp4", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP4(n):
+            update_hyp = updateHyperParm(self, hyp_order[4])
+            layout = {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp['layout'] = layout
+            return update_hyp
+        
+        @self.app.callback(Output(component_id="live_hyp5", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP5(n):
+            update_hyp = updateHyperParm(self, hyp_order[5])
+            layout = {'title': hyp_order[5],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp['layout'] = layout
+            return update_hyp
+        
+        @self.app.callback(Output(component_id="live_hyp6", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphHYP6(n):
+            update_hyp = updateHyperParm(self, hyp_order[6])
+            layout = {'title': hyp_order[6],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp['layout'] = layout
+            return update_hyp
 
 
 

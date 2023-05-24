@@ -64,7 +64,6 @@ async def run_code():
 
         data_hyp, time_inlet_hyp = inlet_hyp.pull_sample(timeout=0.1)
         if data_hyp is not None and data_hyp != saved.hyp:
-            print(data_plot)
             saved.hyp = data_hyp
             saved.time_inlet_hyp = time_inlet_hyp
 
