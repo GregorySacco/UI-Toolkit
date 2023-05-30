@@ -60,7 +60,7 @@ class UI:
                     [html.Div([
                         html.Br(),
                         html.H5(f'Parameter {i+1}'),
-                        html.Div([dcc.Input(id=f'input{i}{j}', type='number', placeholder=minmax[j+1],
+                        html.Div([dcc.Input(id=f'input{i}{j}', type='number', placeholder=minmax[j+1], style={'width': '40%', 'height': '10%'},
                                             persistence=True, persistence_type='memory') for j in range(2)])]) for i in range(n)]) 
             
         
@@ -149,7 +149,28 @@ class UI:
             update_hyp['layout'] = layout
             return update_hyp
 
+        @self.app.callback(Output(component_id="server_flag", component_property="color"),
+                           Output(component_id="opt_flag", component_property="color"),
+                            Input('graph-update', 'n_intervals'))
+        def updateFlags(n):
+            if self.flags['server'] == 'on':
+                server_color = 'success'
+            elif self.flags['server'] ==  'off':
+                server_color = 'danger'
+            else:
+                server_color == 'secondary'
+            
+            if self.flags['optimization'] == 'on':
+                opt_color = 'success'
+            elif self.flags['optimization'] == 'off':
+                opt_color = 'danger'
+            elif self.flags['optimization'] == 'paused':
+                opt_color = 'warning'
+            else:
+                opt_color == 'secondary'
 
+            return server_color, opt_color 
+        
 
         # @app.callback(
         #     Output('graph-update', 'disabled'),

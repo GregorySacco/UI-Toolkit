@@ -160,6 +160,7 @@ def reset(obj):
     obj.previous_hyp = None
     obj.data = {}
     obj.dataECG = {}
+    obj.flags = {'server': 1, 'optimization': 0}
         
         
     

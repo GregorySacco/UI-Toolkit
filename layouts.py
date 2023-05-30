@@ -1,8 +1,23 @@
 from dash import html, dcc, ctx
 import plotly.graph_objs as go
+import dash_bootstrap_components as dbc
+
 
 layout_main = html.Div([
-            html.H1('RRL: Human in the Loop optimization',style={'margin-left': '5px'}),
+            html.Div([
+                html.Div([
+                    html.H1('RRL: Human in the Loop optimization',style={'margin-left': '5px'}),
+                ]),
+    
+                html.Div([
+                    dbc.Badge("Server", id= "server_flag", color="secondary", className="me-1",),
+                ], style={'width':'5%', 'margin-left':'10%', 'margin-top':'1%'}), 
+
+                html.Div([
+                    dbc.Badge("Optimization", id="opt_flag", color="secondary", className="me-1", ),
+                ], style={'width':'5%', 'margin-left':'1%', 'margin-top':'1%'}), 
+            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
+
             html.Div([
                 dcc.Tabs(id='tabs-example', value='init', children=[
                     dcc.Tab(label='Initialization', value='init'),
@@ -20,42 +35,44 @@ layout_main = html.Div([
 
 
 layout_init = html.Div([
+                html.Div([
                     html.Br(),
-                    html.Div([
-                        html.Br(),
-                        html.H3('Select the feedback signal:',style={'margin-left': '5%'}), 
-                        dcc.Dropdown(['ECG','Metabolic','COP'], 'ECG', id='sensor-dropdown',
-                                            style={'margin-left': '3%', 'width': '80%'}, persistence=True),
-                        html.Br(),
-                        html.H3('Select type of Gaussian process:',style={'margin-left': '5%'}),
-                        dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown',
-                                            style={'margin-left': '3%','width': '80%'}, persistence=True),
-                        html.Br(),     
-                        
-                        html.H3('Select type of Acquisition function:',style={'margin-left': '5%'}),
-                        dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
-                                            style={'margin-left': '3%','width': '80%'}, persistence=True),
-            
-                        html.Br(),
-                        html.H3('Number of parameters:',style={'margin-left': '5%'}),   
-                        html.Br(),
-                        html.Div([
-                            dcc.Slider(1,6,step=1,value=1,id='parm_slider',persistence=True), 
-                        ], style = {'margin-left': '3%', 'width': '80%'}),
-                        
-                        html.Br(),
-                        
-                        html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
-                                style={'width': '200px', 'height':'100px', 'margin-left':'150px', 
-                                    'margin-top':'5%','border-radius':'10px',}),
-                        ],style={'width':'50%', 'display':'inline-block', 'vertical-align': 'top'}),        
+                    html.Br(),
+                    html.H4('Select the feedback signal:'), 
+                    dcc.Dropdown(['ECG','Metabolic','COP'], 'ECG', id='sensor-dropdown',
+                                             style={'width': '80%'}, persistence=True),
+                    html.Br(),
+                    html.H4('Number of parameters:'),   
+                    html.Br(),
+                    html.Div([ 
+                    dcc.Slider(1,6,step=1,value=1,id='parm_slider',persistence=True), 
+                    ], style = {'width': '80%'}), 
+                    html.Br(),
+                    html.H4('Insert the max time for optimization'),
+                    dcc.Input(id='opt_time', type='number', placeholder = 'minutes',
+                              style={'width': '40%', 'height': '25px'}, persistence=True, persistence_type='memory') 
+                ], style={'padding':1, 'flex':1,'margin-left': '3%'}),
+    
+                html.Div([
+                    html.Br(), 
+                    html.Div(id='parmBox', style={'width': '92%', 'height':'20%', 'margin-left':'5%'})
+                ], style={'padding':1, 'flex':1}), 
 
-                    
-                    html.Div([      
-                        html.Br(),  
-                        html.Div(id='parmBox', style={'width': '400px', 'height':'100px', 'margin-left':'150px'}),    
-                        ],style={'width':'50%', 'display':'inline-block',})                                 
-                ], style={'width':'100%'})
+                html.Div([
+                    html.Br(),
+                    html.Br(),
+                    html.H4('Select type of Gaussian process:',),
+                    dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown', style={'width': '80%'}, persistence=True),
+                    html.Br(),
+                    html.H4('Select type of Acquisition function:',),
+                    dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
+                                style={'width': '80%'}, persistence=True),
+                    html.Br(),
+                    html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
+                            style={'width': '45%', 'height':'100px', 'margin-left':'15%','margin-top':'5%','border-radius':'10px',}),
+
+                ], style={'padding':1, 'flex':1, 'margin-left': '1%'}), 
+            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
 
 
 layout_opt=html.Div([
@@ -73,12 +90,6 @@ layout_opt=html.Div([
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
 
-                    # html.Div([
-                    #     dcc.Dropdown(['1','2','3','4','5','6'], '1', id='GPx-dropdown',
-                    #                         style={'margin-left': '2%', 'margin-top':'2%', 'width': '30%'}, persistence=True),
-                    #     dcc.Dropdown(['1','2','3','4','5','6'], '1', id='GPy-dropdown',
-                    #                         style={'margin-left': '2%', 'margin-top':'20px', 'width': '30%'}, persistence=True),
-                    # ]),
                     html.Div([
                         html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
                         dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
@@ -100,20 +111,22 @@ layout_opt=html.Div([
 layout_sig=html.Div([
                 html.Br(),
                 html.Div([
-                    html.Br(),
-                    html.H3('Biofeedback signal'),
-                    html.Br(),
-                    dcc.Graph(id='live_ECG', figure={'layout': go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')})
-                ], style={'padding':20, 'flex':1}),
+                    html.H4('Biofeedback signal'),
+                    dcc.Graph(id='live_ECG', style={"height": "37vh"}, figure={'layout': 
+                                    go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')}),  
+                    dcc.Graph(id='live_RMSSD', style={"height": "37vh"}, figure={'layout': 
+                                    go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='RMSSD')}),  
+                ], style={'padding':1, 'flex':1}),
     
                 html.Div([
-                    html.Br(),
-                    html.H3('Parameter/iterations'),
-                    html.Br(),
-                    dcc.Graph(id='live_parm', figure = {'layout': go.Layout(xaxis = dict(title='Iterations'),
-                                                                            yaxis=dict(title='Parameter value'),title='Parameters')}),
-                ], style={'padding':20, 'flex':1}), 
-            ],style={'display':'flex', 'flex-direction':'row'})
+                    html.H4('Parameters and Cost'),
+                    dcc.Graph(id='live_parm', style={"height": "37vh"}, figure={'layout': 
+                                    go.Layout(xaxis = dict(title='Iteration'),title='Parameters')}),
+                    dcc.Graph(id='live_cost', style={"height": "37vh"}, figure={'layout': 
+                                    go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title=''),title='Cost')})
+                ], style={'padding':1, 'flex':1}), 
+
+            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
 
 layout_hyp = html.Div([
                 html.Br(),
