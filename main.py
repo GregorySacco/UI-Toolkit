@@ -1,7 +1,5 @@
 #!/usr/bin/env python3.10
 from UI import UI
-from pylsl import StreamInfo, StreamInlet, resolve_stream
-import subprocess
 
 UI = UI()
 

@@ -10,11 +10,11 @@ layout_main = html.Div([
                 ]),
     
                 html.Div([
-                    dbc.Badge("Server", id= "server_flag", color="secondary", className="me-1",),
+                    dbc.Badge(children="Server", id= "server_flag", color="secondary", className="me-1",),
                 ], style={'width':'5%', 'margin-left':'10%', 'margin-top':'1%'}), 
 
                 html.Div([
-                    dbc.Badge("Optimization", id="opt_flag", color="secondary", className="me-1", ),
+                    dbc.Badge(children="Optimization", id="opt_flag", color="secondary", className="me-1", ),
                 ], style={'width':'5%', 'margin-left':'1%', 'margin-top':'1%'}), 
             ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
 
@@ -68,9 +68,13 @@ layout_init = html.Div([
                     dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
-                    html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
-                            style={'width': '45%', 'height':'100px', 'margin-left':'15%','margin-top':'5%','border-radius':'10px',}),
-
+                    html.Div([
+                        html.Button(id='server_button',className='btn btn-secondary',children='Start Server', 
+                            style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
+                        html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
+                            style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
+                    ])
+                
                 ], style={'padding':1, 'flex':1, 'margin-left': '1%'}), 
             ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
 

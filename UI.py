@@ -7,6 +7,7 @@ import yaml
 import requests
 from layouts import * 
 from callbacks import *
+import subprocess
 
 
 class UI:
@@ -35,6 +36,15 @@ class UI:
             elif tab == 'hyp':
                 return layout_hyp
             
+        # @self.app.callback(
+        #         Output("hidden-div", "children", allow_duplicate=True),
+        #         Input("server_button", 'n_clicks'),
+        #         prevent_initial_call=True)
+        # def start_server(n_clicks):
+        #     if "server_button" == ctx.triggered_id:
+        #         subprocess.Popen(["python", "server.py"])
+
+            
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                     Input('server_timer', 'n_intervals'),
@@ -44,12 +54,12 @@ class UI:
                 download_data(self,config)
            
         
-        @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
-                    Input('ECG_timer', 'n_intervals'),
-                    prevent_initial_call=True)
-        def download_ECG(n):
-            if n is not None:
-                self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
+        # @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
+        #             Input('ECG_timer', 'n_intervals'),
+        #             prevent_initial_call=True)
+        # def download_ECG(n):
+        #     if n is not None:
+        #         self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
 
 
         @self.app.callback(Output('parmBox','children'),
@@ -104,7 +114,7 @@ class UI:
         @self.app.callback(Output(component_id="live_hyp1", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP1(n):
-            update_hyp = updateHyperParm(self, hyp_order[1])
+            update_hyp = updateHyperParm(self, hyp.order[1])
             layout = {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
@@ -112,7 +122,7 @@ class UI:
         @self.app.callback(Output(component_id="live_hyp2", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP2(n):
-            update_hyp = updateHyperParm(self, hyp_order[2])
+            update_hyp = updateHyperParm(self, hyp.order[2])
             layout = {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
@@ -120,7 +130,7 @@ class UI:
         @self.app.callback(Output(component_id="live_hyp3", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP3(n):
-            update_hyp = updateHyperParm(self, hyp_order[3])
+            update_hyp = updateHyperParm(self, hyp.order[3])
             layout = {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
@@ -128,7 +138,7 @@ class UI:
         @self.app.callback(Output(component_id="live_hyp4", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP4(n):
-            update_hyp = updateHyperParm(self, hyp_order[4])
+            update_hyp = updateHyperParm(self, hyp.order[4])
             layout = {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
@@ -136,23 +146,22 @@ class UI:
         @self.app.callback(Output(component_id="live_hyp5", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP5(n):
-            update_hyp = updateHyperParm(self, hyp_order[5])
-            layout = {'title': hyp_order[5],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp = updateHyperParm(self, hyp.order[5])
+            layout = {'title': hyp.order[5],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
         
         @self.app.callback(Output(component_id="live_hyp6", component_property="figure"), 
                     Input('graph-update', 'n_intervals'))   
         def update_graphHYP6(n):
-            update_hyp = updateHyperParm(self, hyp_order[6])
-            layout = {'title': hyp_order[6],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            update_hyp = updateHyperParm(self, hyp.order[6])
+            layout = {'title': hyp.order[6],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
 
         @self.app.callback(Output(component_id="server_flag", component_property="color"),
-                           Output(component_id="opt_flag", component_property="color"),
                             Input('graph-update', 'n_intervals'))
-        def updateFlags(n):
+        def updateServerBadge(n):
             if self.flags['server'] == 'on':
                 server_color = 'success'
             elif self.flags['server'] ==  'off':
@@ -160,16 +169,29 @@ class UI:
             else:
                 server_color == 'secondary'
             
+            return server_color
+
+        @self.app.callback(Output(component_id="opt_flag", component_property="color"),
+                           Output(component_id="opt_flag", component_property="text"),
+                           Input('graph-update', 'n_intervals'))
+        def updateOptBadge(n):
             if self.flags['optimization'] == 'on':
                 opt_color = 'success'
+                opt_text = 'Optimization On'
             elif self.flags['optimization'] == 'off':
                 opt_color = 'danger'
+                opt_text = 'Optimization off'
             elif self.flags['optimization'] == 'paused':
                 opt_color = 'warning'
+                opt_text = 'Optimization paused'
+            elif self.flags['optimization'] == 'exploration':
+                opt_color = 'info'
+                opt_text = 'Exploration'
             else:
-                opt_color == 'secondary'
+                opt_color = 'secondary'
+                opt_text = 'Optimization off'
 
-            return server_color, opt_color 
+            return opt_color, opt_text
         
 
         # @app.callback(
