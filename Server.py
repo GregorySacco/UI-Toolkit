@@ -13,7 +13,7 @@ class Store:
         self.ecg = None
         self.hyp = None 
         self.state = None
-        self.IP = "tcp://127.0.0.1"
+        self.IP = "tcp://192.168.1.43"
 
 saved = Store()
 
@@ -116,32 +116,61 @@ async def state():
         await asyncio.sleep(0.1)
 
 
-async def send_to_API():
-    app = Flask(__name__)
-    @app.get('/OptimizationData')
-    def list_OptimizationData():
-        in_memory_datastore = {
-            "data_plot": saved.plot,
-            "data_gp": saved.gp,
-            "data_hyp": saved.hyp,
-            "data_ecg": saved.ecg,
-            "state": saved.state}
-        return in_memory_datastore
+# async def send_to_API():
+#     app = Flask(__name__)
+#     @app.get('/OptimizationData')
+#     def list_OptimizationData():
+#         in_memory_datastore = {
+#             "data_plot": saved.plot,
+#             "data_gp": saved.gp,
+#             "data_hyp": saved.hyp,
+#             "data_ecg": saved.ecg,
+#             "state": saved.state}
+#         return in_memory_datastore
 
 
-async def main_loop():
-    L = await asyncio.gather(
-        data_plot(),
-        data_ecg(),
-        data_hyp(),
-        data_gp(),
-        # data_acq(),
-        # data_rmssd(),
-        send_to_API()
-    )
+# async def main_loop():
+#     L = await asyncio.gather(
+#         data_plot(),
+#         data_ecg(),
+#         data_hyp(),
+#         data_gp(),
+#         # data_acq(),
+#         # data_rmssd(),
+#         send_to_API()
+#     )
+
+# if __name__ == '__main__':
+#     asyncio.run(main_loop())
+
+
+app = Flask(__name__)
+
+@app.get('/OptimizationData')
+def list_OptimizationData():
+    in_memory_datastore = {
+        "data_plot": saved.plot,
+        "data_gp": saved.gp,
+        "data_hyp": saved.hyp,
+        "data_ecg": saved.ecg,
+        "state": saved.state}
+    return in_memory_datastore
+
 
 if __name__ == '__main__':
-    asyncio.run(main_loop())
+   loop = asyncio.get_event_loop()
+   tasks = [data_plot(), 
+            data_ecg(),
+            data_hyp(),
+            data_gp(),
+            loop.run_in_executor(None, app.run)]
+   loop.run_until_complete(asyncio.gather(*tasks))
+
+
+
+
+
+
 
 
 
