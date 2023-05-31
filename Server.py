@@ -26,8 +26,11 @@ async def data_plot():
     sock.subscribe("")
     sock.connect(f"{saved.IP}:4501")
     while True:
-        msg, msg_time = await sock.recv_pyobj() # waits for msg to be ready
-        reply = await async_process(msg, 'data_plot')
+        try:
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+        except zmq.ZMQError:
+            msg = None
+        await async_process(msg, 'data_plot')
         if msg is not None and msg != saved.plot:
             saved.plot = msg
         await asyncio.sleep(0.1)
@@ -37,7 +40,10 @@ async def data_gp():
     sock.subscribe("")
     sock.connect(f"{saved.IP}:4502")
     while True:
-        msg, msg_time = await sock.recv_pyobj() # waits for msg to be ready
+        try:
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+        except zmq.ZMQError:
+            msg = None
         reply = await async_process(msg, 'data_gp')
         if msg is not None and msg != saved.gp:
             saved.gp = msg
@@ -48,7 +54,10 @@ async def data_ecg():
     sock.subscribe("")
     sock.connect(f"{saved.IP}:4503")
     while True:
-        msg = await sock.recv_pyobj() # waits for msg to be ready
+        try:
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+        except zmq.ZMQError:
+            msg = None
         reply = await async_process(msg, 'data_ecg')
         if msg is not None and msg != saved.ecg:
             saved.ecg = msg
@@ -59,7 +68,10 @@ async def data_hyp():
     sock.subscribe("")
     sock.connect(f"{saved.IP}:4504")
     while True:
-        msg = await sock.recv_pyobj() # waits for msg to be ready
+        try:
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+        except zmq.ZMQError:
+            msg = None
         reply = await async_process(msg, 'data_hyp')
         if msg is not None and msg != saved.hyp:
             saved.hyp = msg
@@ -94,7 +106,10 @@ async def state():
     sock.subscribe("")
     sock.connect(f"{saved.IP}:4507")
     while True:
-        msg = await sock.recv_pyobj() # waits for msg to be ready
+        try:
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+        except zmq.ZMQError:
+            msg = None
         reply = await async_process(msg, 'flags')
         if msg is not None and msg != saved.state:
             saved.state = msg
@@ -119,6 +134,7 @@ async def main_loop():
         data_plot(),
         data_ecg(),
         data_hyp(),
+        data_gp(),
         # data_acq(),
         # data_rmssd(),
         send_to_API()
