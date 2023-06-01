@@ -19,32 +19,25 @@ def download_data(obj, config):
     obj.data = requests.get('http://127.0.0.1:5000/OptimizationData').json()
     
     obj.GPy = obj.data['data_plot']['y']
-    for i in range(1, n_parm+1):
-        obj.parameters[i] = obj.data['data_plot']['x'][i]
+    j = 0
+    obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
+    for list in obj.data['data_plot']['x']:
+        for i in range(n_parm):
+            obj.parameters[i+1].append(obj.data['data_plot']['x'][j][i])
+        j+=1
+    
+    for _ in obj.data['data_gp']:
+        if _ == 'mean':
+            obj.GP_data_plot2D = obj.data['data_gp']['mean']
+        else:
+            obj.data_gp_lin[_] = obj.data['data_gp'][_] 
 
-    data_gp = obj.data['data_gp']
-    data_hyp = obj.data['data_hyp']
-    data_acq = obj.data['data_acq']
+    # data_acq = obj.data['data_acq']
     data_ecg = obj.data['data_ecg']
 
+    for hyp_name in obj.data['data_hyp']:
+        obj.hyperparameters[hyp_name] = obj.data['data_hyp'][hyp_name]
 
-    # if obj.time_inlet is not None and data_plot[0] and obj.time_inlet != obj.previous_data:
-    #     obj.previous_data = obj.time_inlet
-    #     obj.GPy.append(data_plot[0]) 
-    #     for i in range(1,len(data_plot)):
-    #         obj.parameters[i].append(data_plot[i])
-
-    # if obj.time_inlet_gp is not None:
-    #     gp_list = [i[0] for i in data_gp]
-    #     obj.GP_data_plot1D = gp_list
-    #     n = len(gp_list)
-    #     gp_size = int(math.sqrt(n))
-    #     obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
-    
-    # if obj.time_inlet_hyp is not None and data_hyp[0] and obj.time_inlet_hyp != obj.previous_hyp:
-    #     obj.previous_hyp = obj.time_inlet_hyp
-    #     for i in range(1, len(data_hyp)+1):
-    #         obj.hyperparameters[hyp_order[i]].append(data_hyp[i-1])
 
 def updateLiveGP(obj, config, x, y):
     [parmMin, parmMax]= config['Optimization']['range'][0]
@@ -69,29 +62,18 @@ def updateLiveGP(obj, config, x, y):
             obj.HistGP[1][1] = [data, data_1]
         return {'data':obj.HistGP[1][1], 'layout':layout}
     
-    #GP PLOT UPDATE 
         
-    # if n_parm >= 2:
-    #     for i in range(1,n_parm+1):
-    #         for j in range(1,n_parm+1):
-    #             if i == j:
-    #                 if obj.parameters[i] is not None:
-    #                     data = go.Scatter(x=list(obj.parameters[i]), y=list(obj.GPy), name='cost_sample', mode="markers")
-    #                     obj.HistGP[i-1][j-1] = [data]
-    #                 if not(obj.GP_data_plot1D == []): 
-    #                     data_1D = go.Scatter(x=list(np.linspace(parmMin,parmMax,100)), y=obj.GP_data_plot1D, name='GP', mode="lines")
-    #                     obj.HistGP[i-1][j-1] = [data, data_1D]
-    #             else:
-    #                 data=go.Scatter3d(x=list(obj.parameters[i]), y=list(obj.parameters[j]), z=list(obj.GPy), 
-    #                                 name='cost_samples', mode="markers")
-    #                 obj.HistGP[i-1][j-1] = [data]
-    #                 if not(obj.GP_data_plot2D == []): 
-    #                     nx,ny = (30,30)
-    #                     nnx = np.linspace(0,85, nx)
-    #                     nny= np.linspace(0,85, ny)
-    #                     data_2D = go.Surface(x=nnx,y=nny,z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
-    #                     obj.HistGP[i-1][j-1] = [data, data_2D]
-        # return {'data':obj.HistGP[x-1][y-1], 'layout':layout}
+    if n_parm >= 2:
+        data=go.Scatter3d(x=list(obj.parameters[x]), y=list(obj.parameters[y]), z=list(obj.GPy), 
+                        name='cost_samples', mode="markers")
+        # obj.HistGP[i-1][j-1] = [data]
+        # if not(obj.GP_data_plot2D == []): 
+        #     # nx,ny = (30,30)
+        #     # nnx = np.linspace(0,85, nx)
+        #     # nny= np.linspace(0,85, ny)
+        #     data_2D = go.Surface(x=obj.data_gp_lin['x'], y=obj.data_gp_lin['y'], z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
+            # obj.HistGP[i-1][j-1] = [data, data_2D]
+        return {'data':[data], 'layout':layout}
     
 
 # def updateAcqGraph(obj, config):
@@ -130,19 +112,15 @@ def updateLiveGP(obj, config, x, y):
     #                 return {'data':[data], 'layout':layout} 
 
 def updateParmIterationGraph(obj, n_parm):
-    # if obj.time_inlet is not None and obj.time_inlet != obj.previous_parm:
-    #     obj.HistParm = []
+    obj.HistParm = []
     for i in range(1,(n_parm+1)):
         data = go.Scatter(y=obj.parameters[i], name=f'Parameter{i}', mode="lines")
-        # obj.HistParm.append(data)
-    return {'data': data}
+        obj.HistParm.append(data)
+    return {'data': obj.HistParm}
 
-def updateHyperParm(obj, hyp_name):
-    # if obj.time_inlet_hyp is not None:
-    #     obj.HistHyp[hyp_name] = []    
+def updateHyperParm(obj, hyp_name):   
     data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'Hyper {hyp_name}', mode="lines")
-        # obj.HistHyp[hyp_name].append(data)
-    return {'data': data}
+    return {'data': [data]}
 
 
 def reset(obj):
@@ -154,6 +132,7 @@ def reset(obj):
     obj.Acq_data_plot = None
     obj.GP_data_plot1D = []
     obj.GP_data_plot2D = []
+    obj.data_gp_lin = {'x':[], 'y':[]}
     obj.ECGy =[]
     obj.HistParm = []
     obj.HistGP = [[[] for _ in range(6)] for _ in range(6)]

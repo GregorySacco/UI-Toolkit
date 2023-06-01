@@ -14,17 +14,19 @@ class Store:
         self.hyp = None 
         self.state = None
         self.IP = "tcp://192.168.1.43"
+        self.port = "450"
 
 saved = Store()
 
 async def async_process(msg, person):
-    print(msg, person)
+    # print(msg, person)
+    pass
 
 
 async def data_plot():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4501")
+    sock.connect(f"{saved.IP}:{saved.port}1")
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
@@ -38,7 +40,7 @@ async def data_plot():
 async def data_gp():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4502")
+    sock.connect(f"{saved.IP}:{saved.port}2")
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
@@ -52,7 +54,7 @@ async def data_gp():
 async def data_ecg():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4503")
+    sock.connect(f"{saved.IP}:{saved.port}3")
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
@@ -66,7 +68,7 @@ async def data_ecg():
 async def data_hyp():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4504")
+    sock.connect(f"{saved.IP}:{saved.port}4")
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
@@ -104,7 +106,7 @@ async def data_hyp():
 async def state():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4507")
+    sock.connect(f"{saved.IP}:4557")
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
@@ -160,17 +162,11 @@ def list_OptimizationData():
 if __name__ == '__main__':
    loop = asyncio.get_event_loop()
    tasks = [data_plot(), 
-            data_ecg(),
+            # data_ecg(),
             data_hyp(),
             data_gp(),
             loop.run_in_executor(None, app.run)]
    loop.run_until_complete(asyncio.gather(*tasks))
-
-
-
-
-
-
 
 
 

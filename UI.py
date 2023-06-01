@@ -90,16 +90,16 @@ class UI:
             # return updateAcq
 
     
-        @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
-        def update_graphECG(n):
-            data_ecg = self.dataECG['polar ECG']['data_ecg']
-            if data_ecg is not None:
-                self.ECGy = np.array(data_ecg).flatten()
-            data = go.Scatter(y=self.ECGy, name='ECG', mode="lines")
-            layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
-            # layout = {'title': 'ECG'}
-            return {'data':[data], 'layout': layout}
+        # @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
+        #             Input('graph-update', 'n_intervals'))   
+        # def update_graphECG(n):
+        #     data_ecg = self.dataECG['polar ECG']['data_ecg']
+        #     if data_ecg is not None:
+        #         self.ECGy = np.array(data_ecg).flatten()
+        #     data = go.Scatter(y=self.ECGy, name='ECG', mode="lines")
+        #     layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
+        #     # layout = {'title': 'ECG'}
+        #     return {'data':[data], 'layout': layout}
 
 
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
@@ -158,40 +158,47 @@ class UI:
             layout = {'title': hyp.order[6],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
+        
+        @self.app.callback(Output(component_id="live_cost", component_property="figure"), 
+                    Input('graph-update', 'n_intervals'))  
+        def updateLiveCost(n):   
+            data = go.Scatter(y=self.GPy, mode="lines")
+            layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title=''),title='Cost')
+            return {'data': [data], 'layout': layout}
 
-        @self.app.callback(Output(component_id="server_flag", component_property="color"),
-                            Input('graph-update', 'n_intervals'))
-        def updateServerBadge(n):
-            if self.flags['server'] == 'on':
-                server_color = 'success'
-            elif self.flags['server'] ==  'off':
-                server_color = 'danger'
-            else:
-                server_color == 'secondary'
+        # @self.app.callback(Output(component_id="server_flag", component_property="color"),
+        #                     Input('graph-update', 'n_intervals'))
+        # def updateServerBadge(n):
+        #     if self.flags['server'] == 'on':
+        #         server_color = 'success'
+        #     elif self.flags['server'] ==  'off':
+        #         server_color = 'danger'
+        #     else:
+        #         server_color == 'secondary'
             
-            return server_color
+        #     return server_color
 
-        @self.app.callback(Output(component_id="opt_flag", component_property="color"),
-                           Output(component_id="opt_flag", component_property="text"),
-                           Input('graph-update', 'n_intervals'))
-        def updateOptBadge(n):
-            if self.flags['optimization'] == 'on':
-                opt_color = 'success'
-                opt_text = 'Optimization On'
-            elif self.flags['optimization'] == 'off':
-                opt_color = 'danger'
-                opt_text = 'Optimization off'
-            elif self.flags['optimization'] == 'paused':
-                opt_color = 'warning'
-                opt_text = 'Optimization paused'
-            elif self.flags['optimization'] == 'exploration':
-                opt_color = 'info'
-                opt_text = 'Exploration'
-            else:
-                opt_color = 'secondary'
-                opt_text = 'Optimization off'
+        # @self.app.callback(Output(component_id="opt_flag", component_property="color"),
+        #                    Output(component_id="opt_flag", component_property="text"),
+        #                    Input('graph-update', 'n_intervals'))
+        # def updateOptBadge(n):
+        #     if self.flags['optimization'] == 'on':
+        #         opt_color = 'success'
+        #         opt_text = 'Optimization On'
+        #     elif self.flags['optimization'] == 'off':
+        #         opt_color = 'danger'
+        #         opt_text = 'Optimization off'
+        #     elif self.flags['optimization'] == 'paused':
+        #         opt_color = 'warning'
+        #         opt_text = 'Optimization paused'
+        #     elif self.flags['optimization'] == 'exploration':
+        #         opt_color = 'info'
+        #         opt_text = 'Exploration'
+        #     else:
+        #         opt_color = 'secondary'
+        #         opt_text = 'Optimization off'
 
-            return opt_color, opt_text
+        #     return opt_color, opt_text
         
 
         # @app.callback(

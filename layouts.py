@@ -98,7 +98,7 @@ layout_opt=html.Div([
                         html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
                         dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
                                   style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                        dcc.Input(id='y-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
+                        dcc.Input(id='y-input', type='number', value=2, min=1, max=6, persistence=True, persistence_type='memory',
                                   style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
                     ]), 
 
