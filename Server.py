@@ -103,13 +103,13 @@ async def data_hyp():
 #             # saved.time_inlet = msg_time
 #         await asyncio.sleep(0.1)
 
-async def state():
+async def opt_state():
     sock = ctx.socket(zmq.SUB)
     sock.subscribe("")
-    sock.connect(f"{saved.IP}:4557")
+    sock.connect(f"{saved.IP}:{saved.port}7")
     while True:
         try:
-            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+            msg = await sock.recv(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
         reply = await async_process(msg, 'flags')
@@ -117,33 +117,6 @@ async def state():
             saved.state = msg
         await asyncio.sleep(0.1)
 
-
-# async def send_to_API():
-#     app = Flask(__name__)
-#     @app.get('/OptimizationData')
-#     def list_OptimizationData():
-#         in_memory_datastore = {
-#             "data_plot": saved.plot,
-#             "data_gp": saved.gp,
-#             "data_hyp": saved.hyp,
-#             "data_ecg": saved.ecg,
-#             "state": saved.state}
-#         return in_memory_datastore
-
-
-# async def main_loop():
-#     L = await asyncio.gather(
-#         data_plot(),
-#         data_ecg(),
-#         data_hyp(),
-#         data_gp(),
-#         # data_acq(),
-#         # data_rmssd(),
-#         send_to_API()
-#     )
-
-# if __name__ == '__main__':
-#     asyncio.run(main_loop())
 
 
 app = Flask(__name__)
@@ -165,10 +138,9 @@ if __name__ == '__main__':
             # data_ecg(),
             data_hyp(),
             data_gp(),
+            opt_state(),
             loop.run_in_executor(None, app.run)]
    loop.run_until_complete(asyncio.gather(*tasks))
-
-
 
 
 # from flask import Flask

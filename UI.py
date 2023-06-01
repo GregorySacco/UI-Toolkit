@@ -42,7 +42,7 @@ class UI:
         #         prevent_initial_call=True)
         # def start_server(n_clicks):
         #     if "server_button" == ctx.triggered_id:
-        #         subprocess.Popen(["python", "server.py"])
+        #         subprocess.Popen(["python3.10", "server.py"])
 
             
 
@@ -53,15 +53,7 @@ class UI:
             if n is not None:
                 download_data(self,config)
            
-        
-        # @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
-        #             Input('ECG_timer', 'n_intervals'),
-        #             prevent_initial_call=True)
-        # def download_ECG(n):
-        #     if n is not None:
-        #         self.dataECG = requests.get('http://127.0.0.1:5000/polarECG').json()
-
-
+    
         @self.app.callback(Output('parmBox','children'),
                     Input('parm_slider','value'),)
         def update_parmBox(n):

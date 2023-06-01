@@ -26,11 +26,14 @@ def download_data(obj, config):
             obj.parameters[i+1].append(obj.data['data_plot']['x'][j][i])
         j+=1
     
-    for _ in obj.data['data_gp']:
-        if _ == 'mean':
-            obj.GP_data_plot2D = obj.data['data_gp']['mean']
+    for coordinate in obj.data['data_gp']:
+        if coordinate == 'mean':
+            gp_list = obj.data['data_gp']['mean']
+            n = len(gp_list)
+            gp_size = int(math.sqrt(n))
+            obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
         else:
-            obj.data_gp_lin[_] = obj.data['data_gp'][_] 
+            obj.data_gp_lin[coordinate] = obj.data['data_gp'][coordinate] 
 
     # data_acq = obj.data['data_acq']
     data_ecg = obj.data['data_ecg']
@@ -66,14 +69,17 @@ def updateLiveGP(obj, config, x, y):
     if n_parm >= 2:
         data=go.Scatter3d(x=list(obj.parameters[x]), y=list(obj.parameters[y]), z=list(obj.GPy), 
                         name='cost_samples', mode="markers")
-        # obj.HistGP[i-1][j-1] = [data]
-        # if not(obj.GP_data_plot2D == []): 
+        
+        obj.HistGP = [data]
+        if not(obj.GP_data_plot2D == []): 
         #     # nx,ny = (30,30)
         #     # nnx = np.linspace(0,85, nx)
         #     # nny= np.linspace(0,85, ny)
-        #     data_2D = go.Surface(x=obj.data_gp_lin['x'], y=obj.data_gp_lin['y'], z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
-            # obj.HistGP[i-1][j-1] = [data, data_2D]
-        return {'data':[data], 'layout':layout}
+            data_surf = go.Surface(x=obj.data_gp_lin['x'], y=obj.data_gp_lin['y'],
+                                z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
+            obj.HistGP = [data, data_surf]
+
+        return {'data':obj.HistGP, 'layout':layout}
     
 
 # def updateAcqGraph(obj, config):
@@ -135,7 +141,8 @@ def reset(obj):
     obj.data_gp_lin = {'x':[], 'y':[]}
     obj.ECGy =[]
     obj.HistParm = []
-    obj.HistGP = [[[] for _ in range(6)] for _ in range(6)]
+    obj.HistGP = []
+    # obj.HistGP = [[[] for _ in range(6)] for _ in range(6)]
     # obj.HistHyp = {hyp_order[1]:[], hyp_order[2]:[],
     #                hyp_order[3]:[], hyp_order[4]:[],
     #                hyp_order[5]:[], hyp_order[6]:[]}
