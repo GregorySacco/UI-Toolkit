@@ -109,7 +109,7 @@ async def opt_state():
     sock.connect(f"{saved.IP}:{saved.port}7")
     while True:
         try:
-            msg = await sock.recv(flags=zmq.NOBLOCK) # waits for msg to be ready
+            msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
         reply = await async_process(msg, 'flags')

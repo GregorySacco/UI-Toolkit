@@ -170,27 +170,27 @@ class UI:
             
         #     return server_color
 
-        # @self.app.callback(Output(component_id="opt_flag", component_property="color"),
-        #                    Output(component_id="opt_flag", component_property="text"),
-        #                    Input('graph-update', 'n_intervals'))
-        # def updateOptBadge(n):
-        #     if self.flags['optimization'] == 'on':
-        #         opt_color = 'success'
-        #         opt_text = 'Optimization On'
-        #     elif self.flags['optimization'] == 'off':
-        #         opt_color = 'danger'
-        #         opt_text = 'Optimization off'
-        #     elif self.flags['optimization'] == 'paused':
-        #         opt_color = 'warning'
-        #         opt_text = 'Optimization paused'
-        #     elif self.flags['optimization'] == 'exploration':
-        #         opt_color = 'info'
-        #         opt_text = 'Exploration'
-        #     else:
-        #         opt_color = 'secondary'
-        #         opt_text = 'Optimization off'
+        @self.app.callback(Output(component_id="opt_flag", component_property="color"),
+                           Output(component_id="opt_flag", component_property="text"),
+                           Input('graph-update', 'n_intervals'))
+        def updateOptBadge(n):
+            if self.flags['optimization'] == 'DONE':
+                opt_color = 'success'
+                opt_text = 'Optimization On'
+            elif self.flags['optimization'] == 'OFF':
+                opt_color = 'danger'
+                opt_text = 'Optimization off'
+            elif self.flags['optimization'] == 'EXPLORATION':
+                opt_color = 'warning'
+                opt_text = 'Optimization paused'
+            elif self.flags['optimization'] == 'OPTIMIZATION':
+                opt_color = 'info'
+                opt_text = 'Exploration'
+            else:
+                opt_color = 'secondary'
+                opt_text = 'Optimization off'
 
-        #     return opt_color, opt_text
+            return opt_color, opt_text
         
 
         # @app.callback(
@@ -213,9 +213,8 @@ class UI:
             State('GP-dropdown', 'value'),
             State('Acq-dropdown', 'value'),
             State('parmBox','children'),
-            State('inputCost-0', 'value'),
-            State('inputCost-1', 'value'),prevent_initial_call=True)
-        def submit(n_submit, n_parm, GP, Acq, parmRanges, costMin, costMax): 
+            State('opt_time', 'value'),prevent_initial_call=True)
+        def submit(n_submit, n_parm, GP, Acq, parmRanges, opt_time): 
             if "submit_button" == ctx.triggered_id:
                 boxcouples = [[]for i in range(n_parm)]
                 for i in range(n_parm):
@@ -226,9 +225,9 @@ class UI:
                 config['Optimization']['GP'] = GP
                 config['Optimization']['acquisition'] = Acq
                 config['Optimization']['range'] = boxcouples
-                config['Optimization']['range_cost'] = [costMin, costMax]
+                config['Cost']['avg_time'] = opt_time
 
-                config_list = [n_parm, GP, Acq, parmRanges, costMin, costMax]
+                config_list = [n_parm, GP, Acq, parmRanges, opt_time]
                 if not(None in config_list):
                     with open('ECG_config.yml', 'w') as file:
                         yaml.dump(config, file)

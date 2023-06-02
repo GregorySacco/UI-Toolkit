@@ -36,7 +36,7 @@ def download_data(obj, config):
             obj.data_gp_lin[coordinate] = obj.data['data_gp'][coordinate] 
 
     # data_acq = obj.data['data_acq']
-    data_ecg = obj.data['data_ecg']
+    obj.flags['optimization'] = obj.data['state']
 
     for hyp_name in obj.data['data_hyp']:
         obj.hyperparameters[hyp_name] = obj.data['data_hyp'][hyp_name]
