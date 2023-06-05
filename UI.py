@@ -36,13 +36,13 @@ class UI:
             elif tab == 'hyp':
                 return layout_hyp
             
-        @self.app.callback(
-                Output("hidden-div", "children", allow_duplicate=True),
-                Input("server_button", 'n_clicks'),
-                prevent_initial_call=True)
-        def start_server(n):
-            if n is not None and "server_button" == ctx.triggered_id:
-                subprocess.Popen(["python3.10", "server.py"])
+        # @self.app.callback(
+        #         Output("hidden-div", "children", allow_duplicate=True),
+        #         Input("server_button", 'n_clicks'),
+        #         prevent_initial_call=True)
+        # def start_server(n):
+        #     if n is not None and "server_button" == ctx.triggered_id:
+        #         subprocess.Popen(["python3.10", "server.py"])
 
             
 
