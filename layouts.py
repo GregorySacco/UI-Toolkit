@@ -65,7 +65,7 @@ layout_init = html.Div([
                     dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown', style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.H4('Select type of Acquisition function:',),
-                    dcc.Dropdown(['qei', 'b', 'c'], 'qei', id='Acq-dropdown',
+                    dcc.Dropdown(['ei', 'b', 'c'], 'ei', id='Acq-dropdown',
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.Div([
@@ -118,7 +118,7 @@ layout_sig=html.Div([
                     html.H4('Biofeedback signal'),
                     dcc.Graph(id='live_ECG', style={"height": "37vh"}, figure={'layout': 
                                     go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')}),  
-                    dcc.Graph(id='live_RMSSD', style={"height": "37vh"}, figure={'layout': 
+                    dcc.Graph(id='live_HRV', style={"height": "37vh"}, figure={'layout': 
                                     go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='RMSSD')}),  
                 ], style={'padding':1, 'flex':1}),
     
