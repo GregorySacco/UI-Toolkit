@@ -10,10 +10,15 @@ class Store:
     def __init__(self):
         self.plot = None
         self.gp = None
-        self.ecg = None
+        self.ecg = []
         self.acq = None
-        self.hyp = None 
-        self.state = None
+        self.hyp = {'likelihood.noise_covar.raw_noise': [],
+                    'mean_module.raw_constant': [],
+                    'covar_module.raw_outputscale': [],
+                    'covar_module.base_kernel.raw_lengthscale': [],
+                    'hyperparameter 5': [],
+                    'hyperparameter 6': []} 
+        self.state = "OFF"
         self.hrv = None
         self.IP = "tcp://192.168.1.43"
         self.port = "45"
@@ -35,7 +40,9 @@ async def data_plot():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        await async_process(msg, 'data_plot')
+        # await async_process(msg, 'data_plot')
+        if msg is None and saved.plot is None:
+            saved.plot = {'x': [], 'y':[]}
         if msg is not None and msg != saved.plot:
             saved.plot = msg
         await asyncio.sleep(0.1)
@@ -50,6 +57,8 @@ async def data_gp():
         except zmq.ZMQError:
             msg = None
         # reply = await async_process(msg, 'data_gp')
+        if msg is None and saved.gp is None:
+            saved.gp = {'mean': [], 'x': [], 'y':[]}
         if msg is not None and msg != saved.gp:
             saved.gp = msg
         await asyncio.sleep(0.1)
@@ -63,7 +72,7 @@ async def data_acq():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        reply = await async_process(msg, 'data_acq')
+        # reply = await async_process(msg, 'data_acq')
         if msg is not None and msg != saved.acq:
             saved.acq = msg
         await asyncio.sleep(0.1)
@@ -77,7 +86,7 @@ async def data_ecg():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        reply = await async_process(msg, 'data_ecg')
+        # reply = await async_process(msg, 'data_ecg')
         if msg is not None:
             saved.ecg = msg
             
@@ -92,7 +101,7 @@ async def data_hrv():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        reply = await async_process(msg, 'data_hrv')
+        # reply = await async_process(msg, 'data_hrv')
         if msg is not None and msg != saved.hrv:
             saved.hrv = msg
         await asyncio.sleep(0.1)
@@ -106,7 +115,7 @@ async def data_hyp():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        reply = await async_process(msg, 'data_hyp')
+        # reply = await async_process(msg, 'data_hyp')
         if msg is not None and msg != saved.hyp:
             saved.hyp = msg
         await asyncio.sleep(0.1)
@@ -121,7 +130,7 @@ async def opt_state():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        reply = await async_process(msg, 'state')
+        # reply = await async_process(msg, 'state')
         if msg is not None and msg != saved.state:
             saved.state = msg
         await asyncio.sleep(0.1)

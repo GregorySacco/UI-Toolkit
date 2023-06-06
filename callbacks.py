@@ -22,7 +22,6 @@ def download_data(obj, config):
     else:
         obj.flags['server'] = 'OFF'
     data = server_flag.json()
-
     obj.GPy = data['data_plot']['y']
     j = 0
     obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
@@ -30,27 +29,26 @@ def download_data(obj, config):
         for i in range(n_parm):
             obj.parameters[i+1].append(data['data_plot']['x'][j][i])
         j+=1
-    
     for coordinate in data['data_gp']:
         if coordinate == 'mean':
             gp_list = data['data_gp']['mean']
-            n = len(gp_list)
-            gp_size = int(math.sqrt(n))
-            obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+            if not(gp_list == []):
+                n = len(gp_list)
+                gp_size = int(math.sqrt(n))
+                obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
         else:
             obj.data_gp_lin[coordinate] = data['data_gp'][coordinate] 
-
     acq_list = data['data_acq']
-    n = len(acq_list)
-    acq_size = int(math.sqrt(n))
-    obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
-
+    if acq_list is not None:
+        n = len(acq_list)
+        acq_size = int(math.sqrt(n))
+        obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
     obj.flags['optimization'] = data['state']
-
     for hyp_name in data['data_hyp']:
-        obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
-
-    obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
+        if data['data_hyp'] != []:
+            obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
+    if not(data['data_ecg'] == []):
+        obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
     obj.HRVy = data['data_hrv']
 
 def updateECG(obj):
