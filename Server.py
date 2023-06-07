@@ -2,12 +2,18 @@
 import asyncio
 import zmq
 import zmq.asyncio
-from flask import Flask
+from flask import Flask, request
+import requests
 
 ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
+        self.IP = "tcp://192.168.1.43"
+        self.port = "45"
+        self.reset_data()
+
+    def reset_data(self):
         self.plot = None
         self.gp = None
         self.ecg = []
@@ -20,16 +26,20 @@ class Store:
                     'hyperparameter 6': []} 
         self.state = "OFF"
         self.hrv = None
-        self.IP = "tcp://192.168.1.43"
-        self.port = "45"
+        self.opt_comand = 'RESUME'
+
+    def share_data(self):
+        in_memory_datastore = {
+            "data_plot": self.plot,
+            "data_gp": self.gp,
+            "data_acq": self.acq,
+            "data_hyp": self.hyp,
+            "data_ecg": self.ecg,
+            "data_hrv": self.hrv,
+            "state": self.state}
+        return in_memory_datastore
 
 saved = Store()
-print('hellooooo')
-
-async def async_process(msg, person):
-    # print(msg, person)
-    pass
-
 
 async def data_plot():
     sock = ctx.socket(zmq.SUB)
@@ -40,7 +50,6 @@ async def data_plot():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # await async_process(msg, 'data_plot')
         if msg is None and saved.plot is None:
             saved.plot = {'x': [], 'y':[]}
         if msg is not None and msg != saved.plot:
@@ -56,7 +65,6 @@ async def data_gp():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'data_gp')
         if msg is None and saved.gp is None:
             saved.gp = {'mean': [], 'x': [], 'y':[]}
         if msg is not None and msg != saved.gp:
@@ -72,7 +80,6 @@ async def data_acq():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'data_acq')
         if msg is not None and msg != saved.acq:
             saved.acq = msg
         await asyncio.sleep(0.1)
@@ -86,7 +93,6 @@ async def data_ecg():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'data_ecg')
         if msg is not None:
             saved.ecg = msg
             
@@ -101,7 +107,6 @@ async def data_hrv():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'data_hrv')
         if msg is not None and msg != saved.hrv:
             saved.hrv = msg
         await asyncio.sleep(0.1)
@@ -115,7 +120,6 @@ async def data_hyp():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'data_hyp')
         if msg is not None and msg != saved.hyp:
             saved.hyp = msg
         await asyncio.sleep(0.1)
@@ -130,26 +134,36 @@ async def opt_state():
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
         except zmq.ZMQError:
             msg = None
-        # reply = await async_process(msg, 'state')
         if msg is not None and msg != saved.state:
             saved.state = msg
         await asyncio.sleep(0.1)
 
 
+async def opt_comand():
+    sock = ctx.socket(zmq.PUB)
+    sock.bind("tcp://192.168.1.20:4508")
+    while True:
+        print(saved.opt_comand)
+        sock.send_json(saved.opt_comand)
+        await asyncio.sleep(0.1)
 
 app = Flask(__name__)
 
 @app.get('/OptimizationData')
 def list_OptimizationData():
-    in_memory_datastore = {
-        "data_plot": saved.plot,
-        "data_gp": saved.gp,
-        "data_acq": saved.acq,
-        "data_hyp": saved.hyp,
-        "data_ecg": saved.ecg,
-        "data_hrv": saved.hrv,
-        "state": saved.state}
-    return in_memory_datastore
+    return saved.share_data()
+
+@app.post('/OptimizationData')
+def reset_OptimizationData():
+    saved.reset_data()
+    return 'data reset'
+
+@app.post('/OptState')
+def pause_resume_opt():
+    info = request.get_json()
+    saved.opt_comand = info['opt_comand']
+    return 'comand received'
+    
 
 
 if __name__ == '__main__':
@@ -161,6 +175,7 @@ if __name__ == '__main__':
             data_gp(),
             data_acq(),
             opt_state(),
+            opt_comand(),
             loop.run_in_executor(None, app.run)]
    loop.run_until_complete(asyncio.gather(*tasks))
 

@@ -69,10 +69,10 @@ layout_init = html.Div([
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.Div([
-                        html.Button(id='server_button',className='btn btn-secondary',children='Start Server', 
-                            style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
+                        # html.Button(id='server_button',className='btn btn-secondary',children='Start Server', 
+                        #     style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
                         html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
-                            style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
+                            style={'width': '40%', 'height':'100px', 'margin-left':'20%','margin-top':'5%','border-radius':'10px',}),
                     ])
                 
                 ], style={'padding':1, 'flex':1, 'margin-left': '1%'}), 
@@ -94,22 +94,22 @@ layout_opt=html.Div([
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
 
-                    html.Div([
-                        html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
-                        dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
-                                  style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                        dcc.Input(id='y-input', type='number', value=2, min=1, max=6, persistence=True, persistence_type='memory',
-                                  style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                    ]), 
+                    # html.Div([
+                    #     html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
+                    #     dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
+                    #               style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
+                    #     dcc.Input(id='y-input', type='number', value=2, min=1, max=6, persistence=True, persistence_type='memory',
+                    #               style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
+                    # ]), 
 
                     html.Button(id='clear_button',className='btn btn-secondary',children='CLEAR', 
-                                style={'width': '15%', 'height':'80px', 'margin-left':'48%', 'margin-top':'-4%','border-radius':'10px'}), 
+                                style={'width': '15%', 'height':'80px', 'margin-left':'24.5%', 'margin-top':'2%','border-radius':'10px'}), 
 
                     html.Button(id='pause_button',className='btn btn-secondary',children='PAUSE', 
-                                style={'width': '15%', 'height':'80px', 'margin-left':'32px', 'margin-top':'-4%','border-radius':'10px'}), 
+                                style={'width': '15%', 'height':'80px', 'margin-left':'3%', 'margin-top':'2%','border-radius':'10px'}), 
 
                     html.Button(id='resume_button',className='btn btn-secondary',children='RESUME', 
-                                style={'width': '15%','height':'80px', 'margin-left':'32px', 'margin-top':'-4%','border-radius':'10px'}),
+                                style={'width': '15%','height':'80px', 'margin-left':'3%', 'margin-top':'2%','border-radius':'10px'}),
                 ],style={"width": "100 %"})
 
 layout_sig=html.Div([

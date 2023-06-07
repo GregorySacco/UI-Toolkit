@@ -43,7 +43,6 @@ class UI:
         # def start_server(n):
         #     if n is not None and "server_button" == ctx.triggered_id:
         #         subprocess.Popen(["python3.10", "server.py"])
-
             
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
@@ -67,11 +66,9 @@ class UI:
             
         
         @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'),
-                    State('x-input','value'),
-                    State('y-input','value'))   
-        def update_graphGP(n, x, y):
-            figure_update = updateLiveGP(self, config, x, y)
+                    Input('graph-update', 'n_intervals'))   
+        def update_graphGP(n):
+            figure_update = updateLiveGP(self, config)
             return figure_update
                 
 
@@ -182,21 +179,24 @@ class UI:
                 opt_color = 'info'
             else:
                 opt_color = 'secondary'
-
             return opt_color
         
 
-        # @app.callback(
-        #     Output('graph-update', 'disabled'),
-        #     Input('resume_button', 'n_clicks'),
-        #     Input('pause_button', 'n_clicks'))
-        # def resume_opt(n_resume, n_pause, state):
-        #     if (None == n_resume) and (None== n_pause):
-        #         return True #state
-        #     if "resume_button" == ctx.triggered_id:
-        #         return True #False
-        #     elif "pause_button" == ctx.triggered_id:
-        #         return True
+        @self.app.callback(
+            Output('graph-update', 'disabled'),
+            Input('resume_button', 'n_clicks'),
+            Input('pause_button', 'n_clicks'))
+        def resume_opt(n_resume, n_pause):
+            if (None == n_resume) and (None== n_pause):
+                return True #state
+            if "resume_button" == ctx.triggered_id:
+                msg = {"opt_comand": 'RESUME'}
+                requests.post('http://127.0.0.1:5000/OptState', json=msg)
+                return False
+            elif "pause_button" == ctx.triggered_id:
+                msg = {"opt_comand": 'PAUSE'}
+                requests.post('http://127.0.0.1:5000/OptState', json=msg)
+                return True
             
             
         @self.app.callback(
@@ -211,13 +211,17 @@ class UI:
             if "submit_button" == ctx.triggered_id:
                 boxcouples = [[]for i in range(n_parm)]
                 for i in range(n_parm):
-                        boxcouples[i]=[parmRanges['props']['children'][i]['props']['children'][2]
-                                    ['props']['children'][j]['props']['value'] for j in range(2)]
+                    boxcouples[i]=[parmRanges['props']['children'][i]['props']['children'][2]
+                                ['props']['children'][j]['props']['value'] for j in range(2)]
                     
                 config['Optimization']['n_parms'] = n_parm
                 config['Optimization']['GP'] = GP
                 config['Optimization']['acquisition'] = Acq
-                config['Optimization']['range'] = boxcouples
+                if n_parm == 1:
+                    config['Optimization']['range'] = boxcouples[0]
+                else: 
+                    config['Optimization']['range'] = boxcouples
+                
                 config['Cost']['avg_time'] = opt_time
 
                 config_list = [n_parm, GP, Acq, parmRanges, opt_time]
@@ -232,9 +236,10 @@ class UI:
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                            Input('clear_button', 'n_clicks'),
                            prevent_initial_call=True)
-        def clear_UIstack(n):
+        def clear_server(n):
             if n is not None and "clear_button" == ctx.triggered_id:
-                reset(self)
+                reset(self) 
+                requests.post('http://127.0.0.1:5000/OptimizationData')
         
     
                 

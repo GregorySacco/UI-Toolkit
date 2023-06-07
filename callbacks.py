@@ -61,17 +61,17 @@ def updateHRV(obj):
     layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='HRV')
     return {'data': [data], 'layout': layout}
 
-def updateLiveGP(obj, config, x, y):
-    [parmMin, parmMax]= config['Optimization']['range'][0]
+def updateLiveGP(obj, config):
+    [parmMin, parmMax] = config['Optimization']['range'][0]
     n_parm = config['Optimization']['n_parms']
-    if n_parm == 1 or (n_parm>1 and x == y):
+    if n_parm == 1:
         layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
                                     yaxis=dict(title='Cost'))
             
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
         layout=go.Layout(xaxis = dict(range=[parmMin, parmMax]),yaxis=dict(range=[parmMin, parmMax]),
-                            scene=dict(xaxis_title=f'Parameter{x}', yaxis_title=f'Parameter{y}',
+                            scene=dict(xaxis_title=f'Parameter1', yaxis_title=f'Parameter2',
                             zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=scale['x'],
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
 
@@ -86,14 +86,11 @@ def updateLiveGP(obj, config, x, y):
     
         
     if n_parm >= 2:
-        data=go.Scatter3d(x=list(obj.parameters[x]), y=list(obj.parameters[y]), z=list(obj.GPy), 
+        data=go.Scatter3d(x=list(obj.parameters[1]), y=list(obj.parameters[2]), z=list(obj.GPy), 
                         name='cost_samples', mode="markers")
         
         obj.HistGP = [data]
         if not(obj.GP_data_plot2D == []): 
-        #     # nx,ny = (30,30)
-        #     # nnx = np.linspace(0,85, nx)
-        #     # nny= np.linspace(0,85, ny)
             data_surf = go.Surface(x=obj.data_gp_lin['x'], y=obj.data_gp_lin['y'],
                                 z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
             obj.HistGP = [data, data_surf]
