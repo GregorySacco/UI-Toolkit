@@ -16,7 +16,7 @@ hyp = HYP()
 
 def download_data(obj, config):
     n_parm = config['Optimization']['n_parms']
-    server_flag = requests.get('http://127.0.0.1:5000/OptimizationData')
+    server_flag = requests.get(f'http://{obj.serverIP}:{obj.serverPort}/OptimizationData')
     if server_flag.status_code == 200:
         obj.flags['server'] = 'ON'
     else:
@@ -162,6 +162,8 @@ def reset(obj):
     obj.HistAcq = []
     obj.data = {}
     obj.flags = {'server': 'OFF', 'optimization': 'OFF'}
+    obj.serverIP = '127.0.0.1'
+    obj.serverPort = '5000'
         
         
     

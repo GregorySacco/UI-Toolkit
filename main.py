@@ -6,4 +6,4 @@ UI = UI()
 
 
 if __name__ == '__main__':
-    UI.app.run_server(debug=True, port = 8080) #, host='0.0.0.0')
+    UI.app.run_server(debug=False, port = 8080) # host='0.0.0.0')

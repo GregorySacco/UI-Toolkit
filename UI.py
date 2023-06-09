@@ -14,11 +14,14 @@ class UI:
     def __init__(self):
         reset(self)
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
+        self.serverIP = '127.0.0.1'
+        self.serverPort = '5000'
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
                              external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
                 meta_tags=[{'name':'viewport',
                             'content':'width=device-width, initial-scale=0.7, maximum-scale=3, minimum-scale=0.5'}])
         self.app.layout = layout_main
+
 
 
         @self.app.callback(Output('tabs-content', 'children'),
@@ -191,7 +194,7 @@ class UI:
                 return True #state
             if "resume_button" == ctx.triggered_id:
                 msg = {"opt_comand": 'RESUME'}
-                requests.post('http://127.0.0.1:5000/OptState', json=msg)
+                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptState', json=msg)
                 return False
             elif "pause_button" == ctx.triggered_id:
                 msg = {"opt_comand": 'PAUSE'}

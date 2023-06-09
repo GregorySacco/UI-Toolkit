@@ -9,7 +9,7 @@ ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.43"
+        self.IP = "tcp://192.168.1.49"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
@@ -141,9 +141,9 @@ async def opt_state():
 
 async def opt_comand():
     sock = ctx.socket(zmq.PUB)
-    sock.bind("tcp://192.168.1.20:4508")
+    sock.bind(f"tcp://192.168.1.20:{saved.port}08")   #IP of sender (the computer where we run server)
     while True:
-        print(saved.opt_comand)
+        #print(saved.opt_comand)
         sock.send_json(saved.opt_comand)
         await asyncio.sleep(0.1)
 
