@@ -14,8 +14,8 @@ class Store:
         self.reset_data()
 
     def reset_data(self):
-        self.plot = None
-        self.gp = None
+        self.plot = {'x': [], 'y':[]}
+        self.gp = {'mean': [], 'x': [], 'y':[]}
         self.ecg = []
         self.acq = None
         self.hyp = {'likelihood.noise_covar.raw_noise': [],
@@ -176,7 +176,7 @@ if __name__ == '__main__':
             data_acq(),
             opt_state(),
             opt_comand(),
-            loop.run_in_executor(None, app.run)]
+            loop.run_in_executor(None, app.run(host="192.168.1.20", port=5000))]
    loop.run_until_complete(asyncio.gather(*tasks))
 
    

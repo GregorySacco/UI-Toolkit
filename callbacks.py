@@ -22,13 +22,16 @@ def download_data(obj, config):
     else:
         obj.flags['server'] = 'OFF'
     data = server_flag.json()
-    obj.GPy = data['data_plot']['y']
-    j = 0
-    obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
-    for list in data['data_plot']['x']:
-        for i in range(n_parm):
-            obj.parameters[i+1].append(data['data_plot']['x'][j][i])
-        j+=1
+    # pippo = data['data_plot']['y']
+    if data['data_plot']['y'] != []:
+        obj.GPy = data['data_plot']['y']
+        j = 0
+        obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
+        for list in data['data_plot']['x']:
+            for i in range(n_parm):
+                obj.parameters[i+1].append(data['data_plot']['x'][j][i])
+            j+=1
+
     for coordinate in data['data_gp']:
         if coordinate == 'mean':
             gp_list = data['data_gp']['mean']
@@ -162,7 +165,7 @@ def reset(obj):
     obj.HistAcq = []
     obj.data = {}
     obj.flags = {'server': 'OFF', 'optimization': 'OFF'}
-    obj.serverIP = '127.0.0.1'
+    obj.serverIP = '192.168.1.20'
     obj.serverPort = '5000'
         
         

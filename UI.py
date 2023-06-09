@@ -14,7 +14,7 @@ class UI:
     def __init__(self):
         reset(self)
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
-        self.serverIP = '127.0.0.1'
+        self.serverIP = '192.168.1.20'
         self.serverPort = '5000'
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
                              external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
