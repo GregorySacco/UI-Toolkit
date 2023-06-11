@@ -22,7 +22,6 @@ def download_data(obj, config):
     else:
         obj.flags['server'] = 'OFF'
     data = server_flag.json()
-    # pippo = data['data_plot']['y']
     if data['data_plot']['y'] != []:
         obj.GPy = data['data_plot']['y']
         j = 0
