@@ -50,7 +50,7 @@ def download_data(obj, config):
     for hyp_name in data['data_hyp']:
         if data['data_hyp'] != []:
             obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
-    if not(data['data_ecg'] == []):
+    if data['data_ecg'] != []:
         obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
     obj.HRVy = data['data_hrv']
 
@@ -141,7 +141,8 @@ def updateParmIterationGraph(obj, n_parm):
     for i in range(1,(n_parm+1)):
         data = go.Scatter(y=obj.parameters[i], name=f'Parameter{i}', mode="lines")
         obj.HistParm.append(data)
-    return {'data': obj.HistParm}
+    layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title='Parameter value'),title='Parameters')
+    return {'data': obj.HistParm, 'layout': layout}
 
 def updateHyperParm(obj, hyp_name):   
     data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'Hyper {hyp_name}', mode="lines")
@@ -165,7 +166,7 @@ def reset(obj):
     obj.HistAcq = []
     obj.data = {}
     obj.flags = {'server': 'OFF', 'optimization': 'OFF'}
-    obj.serverIP = '192.168.1.20'
+    obj.serverIP = '127.0.0.1'
     obj.serverPort = '5000'
         
         

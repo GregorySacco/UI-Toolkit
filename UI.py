@@ -14,7 +14,7 @@ class UI:
     def __init__(self):
         reset(self)
         with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
-        self.serverIP = '192.168.1.20'
+        self.serverIP = '127.0.0.1'
         self.serverPort = '5000'
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
                              external_stylesheets=[{'href': '/assets/bootstrap.min.css'}],
@@ -38,15 +38,7 @@ class UI:
  
             elif tab == 'hyp':
                 return layout_hyp
-            
-        # @self.app.callback(
-        #         Output("hidden-div", "children", allow_duplicate=True),
-        #         Input("server_button", 'n_clicks'),
-        #         prevent_initial_call=True)
-        # def start_server(n):
-        #     if n is not None and "server_button" == ctx.triggered_id:
-        #         subprocess.Popen(["python3.10", "server.py"])
-            
+                        
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),
                     Input('server_timer', 'n_intervals'),
@@ -69,37 +61,38 @@ class UI:
             
         
         @self.app.callback(Output(component_id="live_GP", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateOPT', 'n_intervals'))   
         def update_graphGP(n):
             figure_update = updateLiveGP(self, config)
             return figure_update
                 
 
         @self.app.callback(Output(component_id="live_Acq", component_property="figure"), 
-                      Input('graph-update', 'n_intervals'))   
+                      Input('graph-updateOPT', 'n_intervals'))   
         def update_graphACQ(n):
             updateAcq = updateAcqGraph(self, config)
             return updateAcq
 
     
         @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-update2', 'n_intervals'))   
         def update_graphECG(n):
-            return updateECG(self)
+            figure_update = updateECG(self)
+            return figure_update
         
         @self.app.callback(Output(component_id="live_HRV", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-update2', 'n_intervals'))   
         def update_graphHRV(n):
-            return updateHRV(self)
+            figure_update = updateHRV(self)
+            return figure_update
+            
 
 
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-update2', 'n_intervals'))   
         def update_graphPARM(n):
             n_parm = config['Optimization']['n_parms']
             update_figureParmIter = updateParmIterationGraph(self, n_parm)
-            layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title='Parameter value'),title='Parameters')
-            update_figureParmIter['layout'] = layout
             return update_figureParmIter
         
         @self.app.callback(Output(component_id="live_hyp1", component_property="figure"), 
@@ -151,14 +144,14 @@ class UI:
             return update_hyp
         
         @self.app.callback(Output(component_id="live_cost", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))  
+                    Input('graph-update2', 'n_intervals'))  
         def updateLiveCost(n):   
             data = go.Scatter(y=self.GPy, mode="lines")
             layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title=''),title='Cost')
             return {'data': [data], 'layout': layout}
 
         @self.app.callback(Output(component_id="server_flag", component_property="color"),
-                            Input('graph-update', 'n_intervals'))
+                            Input('graph-update2', 'n_intervals'))
         def updateServerBadge(n):
             if self.flags['server'] == 'ON':
                 server_color = 'success'
@@ -166,11 +159,10 @@ class UI:
                 server_color = 'danger'
             else:
                 server_color == 'secondary'
-            
             return server_color
 
         @self.app.callback(Output(component_id="opt_flag", component_property="color"),
-                           Input('graph-update', 'n_intervals'))
+                           Input('graph-update2', 'n_intervals'))
         def updateOptBadge(n):
             if self.flags['optimization'] == 'DONE':
                 opt_color = 'success'
@@ -198,7 +190,7 @@ class UI:
                 return False
             elif "pause_button" == ctx.triggered_id:
                 msg = {"opt_comand": 'PAUSE'}
-                requests.post('http://127.0.0.1:5000/OptState', json=msg)
+                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptState', json=msg)
                 return True
             
             
@@ -242,9 +234,7 @@ class UI:
         def clear_server(n):
             if n is not None and "clear_button" == ctx.triggered_id:
                 reset(self) 
-                requests.post('http://127.0.0.1:5000/OptimizationData')
+                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptimizationData')
         
     
                 
-
-        

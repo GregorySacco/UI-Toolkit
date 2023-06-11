@@ -24,9 +24,9 @@ class Store:
                     'covar_module.base_kernel.raw_lengthscale': [],
                     'hyperparameter 5': [],
                     'hyperparameter 6': []} 
-        self.state = "OFF"
+        self.state = "OFF"        #state of the optimization process 
         self.hrv = None
-        self.opt_comand = 'RESUME'
+        self.opt_comand = 'RESUME'    #command from UI for optimization 
 
     def share_data(self):
         in_memory_datastore = {
@@ -143,7 +143,6 @@ async def opt_comand():
     sock = ctx.socket(zmq.PUB)
     sock.bind(f"tcp://192.168.1.20:{saved.port}08")   #IP of sender (the computer where we run server)
     while True:
-        #print(saved.opt_comand)
         sock.send_json(saved.opt_comand)
         await asyncio.sleep(0.1)
 
@@ -167,8 +166,8 @@ def pause_resume_opt():
 
 
 if __name__ == '__main__':
-   loop = asyncio.get_event_loop()
-   tasks = [data_plot(), 
+    loop = asyncio.get_event_loop()
+    tasks = [data_plot(), 
             data_ecg(),
             data_hrv(),
             data_hyp(),
@@ -176,9 +175,5 @@ if __name__ == '__main__':
             data_acq(),
             opt_state(),
             opt_comand(),
-            loop.run_in_executor(None, app.run(host="192.168.1.20", port=5000))]
-   loop.run_until_complete(asyncio.gather(*tasks))
-
-   
-      
-        
+            loop.run_in_executor(None, app.run)]
+    loop.run_until_complete(asyncio.gather(*tasks))

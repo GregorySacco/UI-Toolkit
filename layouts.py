@@ -27,9 +27,10 @@ layout_main = html.Div([
                 ]),
                 html.Div(id='tabs-content'),
             ]),
-            dcc.Interval(id="graph-update", interval=2500, disabled=False), 
+            dcc.Interval(id="graph-updateOPT", interval=3000),
+            dcc.Interval(id="graph-update", interval=2500),
+            dcc.Interval(id="graph-update2", interval=1000),
             dcc.Interval(id="server_timer", interval=500), 
-            dcc.Interval(id="ECG_timer", interval=2000), 
             html.Div(id="hidden-div", children= None, style={"display":"none"}),
         ])
 
@@ -69,8 +70,6 @@ layout_init = html.Div([
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.Div([
-                        # html.Button(id='server_button',className='btn btn-secondary',children='Start Server', 
-                        #     style={'width': '40%', 'height':'100px', 'margin-left':'5%','margin-top':'5%','border-radius':'10px',}),
                         html.Button(id='submit_button',className='btn btn-secondary',children='SUBMIT', 
                             style={'width': '40%', 'height':'100px', 'margin-left':'20%','margin-top':'5%','border-radius':'10px',}),
                     ])
@@ -93,14 +92,6 @@ layout_opt=html.Div([
                         ], style={'padding':10, 'flex':1}), 
 
                     ],style={'display':'flex', 'flex-direction':'row'}),
-
-                    # html.Div([
-                    #     html.H5("Select parameters for axis x and y", style={'margin-left':'2%', 'margin-top':'2%'}),
-                    #     dcc.Input(id='x-input', type='number', value=1, min=1, max=6, persistence=True, persistence_type='memory',
-                    #               style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                    #     dcc.Input(id='y-input', type='number', value=2, min=1, max=6, persistence=True, persistence_type='memory',
-                    #               style={'width': '10%', 'margin-left':'2%', 'margin-top':'0%'}),
-                    # ]), 
 
                     html.Button(id='clear_button',className='btn btn-secondary',children='CLEAR', 
                                 style={'width': '15%', 'height':'80px', 'margin-left':'24.5%', 'margin-top':'2%','border-radius':'10px'}), 
