@@ -218,6 +218,7 @@ class UI:
                     config['Optimization']['range'] = boxcouples
                 
                 config['Cost']['avg_time'] = opt_time
+                print(config)
 
                 config_list = [n_parm, GP, Acq, parmRanges, opt_time]
                 if not(None in config_list):

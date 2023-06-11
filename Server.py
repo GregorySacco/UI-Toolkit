@@ -141,7 +141,7 @@ async def opt_state():
 
 async def opt_comand():
     sock = ctx.socket(zmq.PUB)
-    sock.bind(f"tcp://192.168.1.20:{saved.port}08")   #IP of sender (the computer where we run server)
+    sock.bind(f"tcp://192.168.1.49:{saved.port}08")   #IP of sender (the computer where we run server)
     while True:
         sock.send_json(saved.opt_comand)
         await asyncio.sleep(0.1)
@@ -177,3 +177,5 @@ if __name__ == '__main__':
             opt_comand(),
             loop.run_in_executor(None, app.run)]
     loop.run_until_complete(asyncio.gather(*tasks))
+    
+    

@@ -1,6 +1,6 @@
 Cost:
   Name: ECG_processed
-  avg_time: 12
+  avg_time: 10
   mean_time: 5
   n_samples: 5
   time: 90
@@ -15,7 +15,7 @@ Optimization:
   n_start_points: 3
   n_steps: 15
   range:
-  - - 0
-    - 84
-  - - 0
-    - 84
+  - - 10
+    - 25
+  - - 10
+    - 40
