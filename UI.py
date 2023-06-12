@@ -13,7 +13,9 @@ import subprocess
 class UI:
     def __init__(self):
         reset(self)
-        with open('ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
+        yaml.preserve_quotes = True
+        yaml.preserve_round_trip_comments= True
+        with open('/home/kim/github/Demo-HIL-toolkit/configs/ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
         self.serverIP = '127.0.0.1'
         self.serverPort = '5000'
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
@@ -201,8 +203,9 @@ class UI:
             State('GP-dropdown', 'value'),
             State('Acq-dropdown', 'value'),
             State('parmBox','children'),
-            State('opt_time', 'value'),prevent_initial_call=True)
-        def submit(n_submit, n_parm, GP, Acq, parmRanges, opt_time): 
+            State('opt_time', 'value'),
+            State('opt_time', 'value'), prevent_initial_call=True)
+        def submit(n_submit, n_parm, GP, Acq, parmRanges, opt_time, opt_steps): 
             if "submit_button" == ctx.triggered_id:
                 boxcouples = [[]for i in range(n_parm)]
                 for i in range(n_parm):
@@ -212,21 +215,31 @@ class UI:
                 config['Optimization']['n_parms'] = n_parm
                 config['Optimization']['GP'] = GP
                 config['Optimization']['acquisition'] = Acq
+                config['Cost']['time'] = opt_time
+                
                 if n_parm == 1:
                     config['Optimization']['range'] = boxcouples[0]
+                    data = boxcouples[0]
                 else: 
                     config['Optimization']['range'] = boxcouples
+                    data = boxcouples
+                #print('hello1')
+                #def format_list(dumper, data):
+                #    return dumper.represent_scalar('tag:yaml.org,2002:str', str(data), style='')
+                #    
+                #yaml.add_representer(str, format_list)
+                #print('hello2')
+                #config_list = [n_parm, GP, Acq, parmRanges, opt_time, opt_steps]
                 
-                config['Cost']['avg_time'] = opt_time
-                print(config)
-
-                config_list = [n_parm, GP, Acq, parmRanges, opt_time]
-                if not(None in config_list):
-                    with open('ECG_config.yml', 'w') as file:
-                        yaml.dump(config, file)
-                    return 'SUBMITTED'
-                else:
-                    return 'SUBMIT'
+                #if isinstance(config['Optimization']['range'], list):
+                #     print('is a string helllo')
+                #print('hello3')
+                with open('/home/kim/github/Demo-HIL-toolkit/configs/ECG_config.yml', 'w') as file:
+                    yaml.dump(config, file, sort_keys=False)
+                
+                                                
+                return 'SUBMITTED'
+           
                 
 
         @self.app.callback(Output("hidden-div", 'children', allow_duplicate=True),

@@ -2,6 +2,7 @@ import plotly.graph_objs as go
 import math
 import numpy as np
 import requests
+import ast
 
 
 class HYP:
@@ -64,15 +65,18 @@ def updateHRV(obj):
     return {'data': [data], 'layout': layout}
 
 def updateLiveGP(obj, config):
-    [parmMin, parmMax] = config['Optimization']['range'][0]
     n_parm = config['Optimization']['n_parms']
     if n_parm == 1:
-        layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
+        parmRange = config['Optimization']['range']
+        layout = go.Layout(xaxis = dict(title='Parameter',range=parmRange),
                                     yaxis=dict(title='Cost'))
             
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
-        layout=go.Layout(xaxis = dict(range=[parmMin, parmMax]),yaxis=dict(range=[parmMin, parmMax]),
+        ranges = config['Optimization']['range']
+        parmRange1= [int(num) for num in ranges[0]]
+        parmRange2= [int(num) for num in ranges[1]]
+        layout=go.Layout(xaxis = dict(range=parmRange1),yaxis=dict(range=parmRange2),
                             scene=dict(xaxis_title=f'Parameter1', yaxis_title=f'Parameter2',
                             zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=scale['x'],
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
@@ -100,15 +104,22 @@ def updateLiveGP(obj, config):
     
 
 def updateAcqGraph(obj, config):
-    [parmMin, parmMax]= config['Optimization']['range'][0]
     n_parm = config['Optimization']['n_parms']
     if n_parm == 1:
-        layout = go.Layout(xaxis = dict(title='Parameter',range=[parmMin, parmMax]),
+        parmRange = config['Optimization']['range']
+        layout = go.Layout(xaxis = dict(title='Parameter',range=parmRange),
                                     yaxis=dict(title='Acquisition function'))
             
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
-        layout=go.Layout(xaxis = dict(range=[parmMin, parmMax]),yaxis=dict(range=[parmMin, parmMax]),
+        #print(config['Optimization']['range'])
+        ranges = config['Optimization']['range']
+        
+        #print(config['Optimization']['range'])
+        
+        parmRange1= [int(num) for num in ranges[0]]
+        parmRange2= [int(num) for num in ranges[1]]
+        layout=go.Layout(xaxis = dict(range=parmRange1),yaxis=dict(range=parmRange2),
                             scene=dict(xaxis_title='Parameter1', yaxis_title='Parameter2',
                             zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=scale['x'],
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
