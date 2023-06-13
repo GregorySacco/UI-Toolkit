@@ -23,6 +23,7 @@ def download_data(obj, config):
     else:
         obj.flags['server'] = 'OFF'
     data = server_flag.json()
+    
     if data['data_plot']['y'] != []:
         obj.GPy = data['data_plot']['y']
         j = 0
@@ -41,17 +42,21 @@ def download_data(obj, config):
                 obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
         else:
             obj.data_gp_lin[coordinate] = data['data_gp'][coordinate] 
+            
     acq_list = data['data_acq']
     if acq_list is not None:
         n = len(acq_list)
         acq_size = int(math.sqrt(n))
         obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
     obj.flags['optimization'] = data['state']
+    
     for hyp_name in data['data_hyp']:
         if data['data_hyp'] != []:
             obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
+            
     if data['data_ecg'] != []:
         obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
+        
     obj.HRVy = data['data_hrv']
 
 def updateECG(obj):
