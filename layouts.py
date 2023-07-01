@@ -73,7 +73,7 @@ layout_init = html.Div([
                     dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown', style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.H4('Select type of Acquisition function:',),
-                    dcc.Dropdown(['ei', 'b', 'c'], 'ei', id='Acq-dropdown',
+                    dcc.Dropdown(['ei', 'Matern'], 'ei', id='Acq-dropdown',
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.Div([

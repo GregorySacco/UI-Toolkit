@@ -27,8 +27,10 @@ def download_data(obj, config):
         obj.GPy = data['data_plot']['y']
         j = 0
         obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
-        for list in data['data_plot']['x']:
+        for block in data['data_plot']['x']:
+            #print('BLOCK', block)
             for i in range(n_parm):
+                #print('JEEYY',j)
                 obj.parameters[i+1].append(data['data_plot']['x'][j][i])
             j+=1
 
@@ -36,16 +38,24 @@ def download_data(obj, config):
         if coordinate == 'mean':
             gp_list = data['data_gp']['mean']
             if not(gp_list == []):
-                n = len(gp_list)
-                gp_size = int(math.sqrt(n))
-                obj.GP_data_plot2D = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
+                if n_parm == 1 :
+                    n = len(gp_list)
+                    obj.GP_data_plot = [gp_list[i] for i in range(n)]
+                else:
+                    n = len(gp_list)
+                    gp_size = int(math.sqrt(n))
+                    obj.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
         else:
             obj.data_gp_lin[coordinate] = data['data_gp'][coordinate] 
     acq_list = data['data_acq']
-    if acq_list is not None:
-        n = len(acq_list)
-        acq_size = int(math.sqrt(n))
-        obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
+    if not(acq_list is None):
+        if n_parm == 1:
+            n = len(acq_list)
+            obj.Acq_data_plot = [acq_list[i] for i in range(n)]
+        else:
+            n = len(acq_list)
+            acq_size = int(math.sqrt(n))
+            obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
     obj.flags['optimization'] = data['state']
     for hyp_name in data['data_hyp']:
         if data['data_hyp'] != []:
@@ -67,7 +77,7 @@ def updateHRV(obj):
 def updateLiveGP(obj, config):
     n_parm = config['Optimization']['n_parms']
     if n_parm == 1:
-        parmRange = config['Optimization']['range']
+        parmRange = config['Optimization']['range'][0]
         layout = go.Layout(xaxis = dict(title='Parameter',range=parmRange),
                                     yaxis=dict(title='Cost'))
             
@@ -82,13 +92,12 @@ def updateLiveGP(obj, config):
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
 
     if n_parm == 1:                   
-        if obj.time_inlet is not None:
-            data = go.Scatter(x=list(obj.parameters[1]), y=list(obj.GPy), name='cost_sample', mode="markers")
-            obj.HistGP[1][1] = [data]
+        data = go.Scatter(x=list(obj.parameters[1]), y=list(obj.GPy), name='cost_sample', mode="markers")
+        obj.HistGP = [data]
         if not(obj.GP_data_plot == []): 
-            data_1 = go.Scatter(x=list(np.linspace(parmMin,parmMax,100)), y=obj.GP_data_plot1D, name='GP', mode="lines")
-            obj.HistGP[1][1] = [data, data_1]
-        return {'data':obj.HistGP[1][1], 'layout':layout}
+            data_1 = go.Scatter(x=list(np.linspace(parmRange[0],parmRange[1],100)), y=obj.GP_data_plot, name='GP', mode="lines")
+            obj.HistGP = [data, data_1]
+        return {'data':obj.HistGP, 'layout':layout}
     
         
     if n_parm >= 2:
@@ -96,9 +105,9 @@ def updateLiveGP(obj, config):
                         name='cost_samples', mode="markers")
         
         obj.HistGP = [data]
-        if not(obj.GP_data_plot2D == []): 
+        if not(obj.GP_data_plot == []): 
             data_surf = go.Surface(x=obj.data_gp_lin['x'], y=obj.data_gp_lin['y'],
-                                z=obj.GP_data_plot2D, name='GP',opacity=0.50, showscale=False) 
+                                z=obj.GP_data_plot, name='GP',opacity=0.50, showscale=False) 
             obj.HistGP = [data, data_surf]
         return {'data':obj.HistGP, 'layout':layout}
     
@@ -106,7 +115,7 @@ def updateLiveGP(obj, config):
 def updateAcqGraph(obj, config):
     n_parm = config['Optimization']['n_parms']
     if n_parm == 1:
-        parmRange = config['Optimization']['range']
+        parmRange = config['Optimization']['range'][0]
         layout = go.Layout(xaxis = dict(title='Parameter',range=parmRange),
                                     yaxis=dict(title='Acquisition function'))
             
@@ -125,13 +134,11 @@ def updateAcqGraph(obj, config):
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
 
     if n_parm == 1:                   
-        if obj.time_inlet is not None:
-            data = go.Scatter(x=list(obj.parameters[1]), y=list(obj.GPy), name='cost_sample', mode="markers")
-            obj.HistGP[1][1] = [data]
-        if not(obj.GP_data_plot == []): 
-            data_1 = go.Scatter(x=list(np.linspace(parmMin,parmMax,100)), y=obj.GP_data_plot1D, name='GP', mode="lines")
-            obj.HistGP[1][1] = [data, data_1]
-        return {'data':obj.HistGP[1][1], 'layout':layout}
+        if not(obj.Acq_data_plot == []): 
+        #x=list(np.linspace(parmRange[0],parmRange[1],100)), 
+            data = go.Scatter(y=obj.Acq_data_plot, name='Acq', mode="lines")
+            obj.HistAcq = [data]
+        return {'data':obj.HistAcq, 'layout':layout}
     
         
     if n_parm >= 2:
@@ -166,8 +173,7 @@ def reset(obj):
                            hyp.order[5]:[], hyp.order[6]:[]}
     obj.GPy = []
     obj.Acq_data_plot = None
-    obj.GP_data_plot1D = []
-    obj.GP_data_plot2D = []
+    obj.GP_data_plot = []
     obj.data_gp_lin = {'x':[], 'y':[]}
     obj.ECGy =[]
     obj.HRVy =[]
