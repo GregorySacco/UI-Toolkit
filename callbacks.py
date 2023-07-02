@@ -135,8 +135,8 @@ def updateAcqGraph(obj, config):
 
     if n_parm == 1:                   
         if not(obj.Acq_data_plot == []): 
-        #x=list(np.linspace(parmRange[0],parmRange[1],100)), 
-            data = go.Scatter(y=obj.Acq_data_plot, name='Acq', mode="lines")
+        # 
+            data = go.Scatter(x=list(np.linspace(parmRange[0],parmRange[1],100)), y=obj.Acq_data_plot, name='Acq', mode="lines")
             obj.HistAcq = [data]
         return {'data':obj.HistAcq, 'layout':layout}
     
