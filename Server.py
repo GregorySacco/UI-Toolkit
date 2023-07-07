@@ -9,7 +9,7 @@ ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.49"  # IP of computer where we run opt code
+        self.IP = "tcp://192.168.1.8"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
@@ -21,8 +21,8 @@ class Store:
         self.hyp = {'likelihood.noise_covar.raw_noise': [],
                     'mean_module.raw_constant': [],
                     'covar_module.raw_outputscale': [],
-                    'covar_module.base_kernel.raw_lengthscale': [],
-                    'hyperparameter 5': [],
+                    'lengthscale1': [],
+                    'lengthscale2': [],
                     'hyperparameter 6': []} 
         self.state = "OFF"        #state of the optimization process 
         self.hrv = None
@@ -121,6 +121,7 @@ async def data_hyp():
         except zmq.ZMQError:
             msg = None
         if msg is not None and msg != saved.hyp:
+            print(msg)
             saved.hyp = msg
         await asyncio.sleep(0.1)
 
@@ -141,7 +142,7 @@ async def opt_state():
 
 async def opt_comand():
     sock = ctx.socket(zmq.PUB)
-    sock.bind(f"tcp://192.168.1.49:{saved.port}08")   #IP of sender (the computer where we run server)
+    sock.bind(f"tcp://192.168.1.8:{saved.port}08")   #IP of sender (the computer where we run server)
     while True:
         sock.send_json(saved.opt_comand)
         await asyncio.sleep(0.1)
