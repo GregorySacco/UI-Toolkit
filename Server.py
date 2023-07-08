@@ -21,9 +21,9 @@ class Store:
         self.hyp = {'likelihood.noise_covar.raw_noise': [],
                     'mean_module.raw_constant': [],
                     'covar_module.raw_outputscale': [],
-                    'lengthscale1': [],
-                    'lengthscale2': [],
-                    'hyperparameter 6': []} 
+                    'lengthscale parm1': [],
+                    'lengthscale parm2': [],
+                    } 
         self.state = "OFF"        #state of the optimization process 
         self.hrv = None
         self.opt_comand = 'RESUME'    #command from UI for optimization 

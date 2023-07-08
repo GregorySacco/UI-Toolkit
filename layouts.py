@@ -28,8 +28,9 @@ layout_main = html.Div([
                 html.Div(id='tabs-content'),
             ]),
             dcc.Interval(id="graph-updateOPT", interval=3000),
-            dcc.Interval(id="graph-update", interval=2500),
-            dcc.Interval(id="graph-update2", interval=1000),
+            dcc.Interval(id="graph-updateHyp123", interval=2500),
+            dcc.Interval(id="graph-updateHyp456", interval=2500),
+            dcc.Interval(id="graph-updateSig", interval=1000),
             dcc.Interval(id="server_timer", interval=500), 
             html.Div(id="hidden-div", children= None, style={"display":"none"}),
         ])
@@ -135,16 +136,16 @@ layout_hyp = html.Div([
                 html.Div([
                     html.Br(),
                     dcc.Graph(id='live_hyp1', style={"height": "37vh"}, figure={
-                        'layout' : {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                        'layout' : {'title': 'Hyperparameter 1','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                     html.Br(),
                     dcc.Graph(id='live_hyp4', style={"height": "37vh"}, figure={
-                        'layout' : {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                        'layout' : {'title': 'Hyperparameter 4','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                 ], style={'padding':1, 'flex':1}),
     
                 html.Div([
                     html.Br(),
                     dcc.Graph(id='live_hyp2', style={"height": "37vh"}, figure={
-                        'layout' : {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
+                        'layout' : {'title': 'Hyperparameter 2','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),
                     html.Br(),
                     dcc.Graph(id='live_hyp5', style={"height": "37vh"}, figure={
                         'layout' : {'title': 'Hyperparameter 5','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
@@ -153,7 +154,7 @@ layout_hyp = html.Div([
                 html.Div([
                     html.Br(),
                     dcc.Graph(id='live_hyp3', style={"height": "37vh"}, figure={
-                        'layout' : {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
+                        'layout' : {'title': 'Hyperparameter 3','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}}),  
                     html.Br(),
                     dcc.Graph(id='live_hyp6', style={"height": "37vh"}, figure={
                         'layout' : {'title': 'Hyperparameter 6','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})

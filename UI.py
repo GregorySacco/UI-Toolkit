@@ -77,60 +77,60 @@ class UI:
 
     
         @self.app.callback(Output(component_id="live_ECG", component_property="figure"), 
-                    Input('graph-update2', 'n_intervals'))   
+                    Input('graph-updateSig', 'n_intervals'))   
         def update_graphECG(n):
             figure_update = updateECG(self)
             return figure_update
         
         @self.app.callback(Output(component_id="live_HRV", component_property="figure"), 
-                    Input('graph-update2', 'n_intervals'))   
+                    Input('graph-updateSig', 'n_intervals'))   
         def update_graphHRV(n):
             figure_update = updateHRV(self)
             return figure_update
             
 
-
         @self.app.callback(Output(component_id="live_parm", component_property="figure"), 
-                    Input('graph-update2', 'n_intervals'))   
+                    Input('graph-updateSig', 'n_intervals'))   
         def update_graphPARM(n):
             n_parm = config['Optimization']['n_parms']
             update_figureParmIter = updateParmIterationGraph(self, n_parm)
             return update_figureParmIter
         
         @self.app.callback(Output(component_id="live_hyp1", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp123', 'n_intervals'))   
         def update_graphHYP1(n):
             update_hyp = updateHyperParm(self, hyp.order[1])
-            layout = {'title': 'Likelihood noise covariance','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            layout = {'title': hyp.order[1],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
+            #print('HELLLLEOOO', update_hyp)
             return update_hyp
                 
         @self.app.callback(Output(component_id="live_hyp2", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp123', 'n_intervals'))   
         def update_graphHYP2(n):
             update_hyp = updateHyperParm(self, hyp.order[2])
-            layout = {'title': 'Mean module','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            layout = {'title': hyp.order[2],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
         
         @self.app.callback(Output(component_id="live_hyp3", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp123', 'n_intervals'))   
         def update_graphHYP3(n):
             update_hyp = updateHyperParm(self, hyp.order[3])
-            layout = {'title': 'Covariance module outputscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            layout = {'title': hyp.order[3],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
         
         @self.app.callback(Output(component_id="live_hyp4", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp456', 'n_intervals'))   
         def update_graphHYP4(n):
             update_hyp = updateHyperParm(self, hyp.order[4])
-            layout = {'title': 'Covariance module lengthscale','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
+            layout = {'title': hyp.order[4],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
             return update_hyp
         
         @self.app.callback(Output(component_id="live_hyp5", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp456', 'n_intervals'))   
         def update_graphHYP5(n):
             update_hyp = updateHyperParm(self, hyp.order[5])
             layout = {'title': hyp.order[5],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
@@ -138,7 +138,7 @@ class UI:
             return update_hyp
         
         @self.app.callback(Output(component_id="live_hyp6", component_property="figure"), 
-                    Input('graph-update', 'n_intervals'))   
+                    Input('graph-updateHyp456', 'n_intervals'))   
         def update_graphHYP6(n):
             update_hyp = updateHyperParm(self, hyp.order[6])
             layout = {'title': hyp.order[6],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
@@ -146,14 +146,14 @@ class UI:
             return update_hyp
         
         @self.app.callback(Output(component_id="live_cost", component_property="figure"), 
-                    Input('graph-update2', 'n_intervals'))  
+                    Input('graph-updateSig', 'n_intervals'))  
         def updateLiveCost(n):   
             data = go.Scatter(y=self.GPy, mode="lines")
             layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title=''),title='Cost')
             return {'data': [data], 'layout': layout}
 
         @self.app.callback(Output(component_id="server_flag", component_property="color"),
-                            Input('graph-update2', 'n_intervals'))
+                            Input('graph-updateSig', 'n_intervals'))
         def updateServerBadge(n):
             if self.flags['server'] == 'ON':
                 server_color = 'success'
@@ -164,7 +164,7 @@ class UI:
             return server_color
 
         @self.app.callback(Output(component_id="opt_flag", component_property="color"),
-                           Input('graph-update2', 'n_intervals'))
+                           Input('graph-updateSig', 'n_intervals'))
         def updateOptBadge(n):
             if self.flags['optimization'] == 'DONE':
                 opt_color = 'success'

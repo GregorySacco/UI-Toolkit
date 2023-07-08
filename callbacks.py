@@ -10,8 +10,8 @@ class HYP:
         self.order =   {1: 'likelihood.noise_covar.raw_noise',
                         2: 'mean_module.raw_constant',
                         3: 'covar_module.raw_outputscale',
-                        4: 'covar_module.base_kernel.raw_lengthscale',
-                        5: 'hyperparameter 5',
+                        4: 'lengthscale parm1',
+                        5: 'lengthscale parm2',
                         6: 'hyperparameter 6'}
 hyp = HYP()
 
@@ -47,6 +47,7 @@ def download_data(obj, config):
                     obj.GP_data_plot = [gp_list[i:i+gp_size] for i in range(0, n, gp_size)]
         else:
             obj.data_gp_lin[coordinate] = data['data_gp'][coordinate] 
+            
     acq_list = data['data_acq']
     if not(acq_list is None):
         if n_parm == 1:
@@ -56,13 +57,18 @@ def download_data(obj, config):
             n = len(acq_list)
             acq_size = int(math.sqrt(n))
             obj.Acq_data_plot = [acq_list[i:i+acq_size] for i in range(0, n, acq_size)]
+            
     obj.flags['optimization'] = data['state']
+    
     for hyp_name in data['data_hyp']:
         if data['data_hyp'] != []:
             obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
+            
     if data['data_ecg'] != []:
         obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
+        
     obj.HRVy = data['data_hrv']
+    #print(obj.hyperparameters)
 
 def updateECG(obj):
     data = go.Scatter(y= obj.ECGy, name='ECG', mode="lines")
@@ -162,7 +168,7 @@ def updateParmIterationGraph(obj, n_parm):
     return {'data': obj.HistParm, 'layout': layout}
 
 def updateHyperParm(obj, hyp_name):   
-    data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'Hyper {hyp_name}', mode="lines")
+    data = go.Scatter(y=obj.hyperparameters[hyp_name], name=f'{hyp_name}', mode="lines")
     return {'data': [data]}
 
 
