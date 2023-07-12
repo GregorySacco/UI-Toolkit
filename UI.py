@@ -180,19 +180,17 @@ class UI:
         
 
         @self.app.callback(
-            Output('graph-update', 'disabled'),
+            Output('graph-updateOPT', 'disabled'),
             Input('resume_button', 'n_clicks'),
             Input('pause_button', 'n_clicks'))
         def resume_opt(n_resume, n_pause):
-            if (None == n_resume) and (None== n_pause):
+            if (None == n_resume) and (None == n_pause):
                 return True #state
             if "resume_button" == ctx.triggered_id:
-                msg = {"opt_comand": 'RESUME'}
-                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptState', json=msg)
+                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptResume')
                 return False
             elif "pause_button" == ctx.triggered_id:
-                msg = {"opt_comand": 'PAUSE'}
-                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptState', json=msg)
+                requests.post(f'http://{self.serverIP}:{self.serverPort}/OptPause')
                 return True
             
             

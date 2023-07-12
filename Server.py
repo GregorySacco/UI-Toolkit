@@ -6,6 +6,7 @@ from flask import Flask, request
 import requests
 
 ctx = zmq.asyncio.Context()
+#ctx = zmq.Context()
 
 class Store:
     def __init__(self):
@@ -95,7 +96,6 @@ async def data_ecg():
             msg = None
         if msg is not None:
             saved.ecg = msg
-            
         await asyncio.sleep(0.1)
 
 async def data_hrv():
@@ -121,7 +121,6 @@ async def data_hyp():
         except zmq.ZMQError:
             msg = None
         if msg is not None and msg != saved.hyp:
-            print(msg)
             saved.hyp = msg
         await asyncio.sleep(0.1)
 
@@ -144,6 +143,7 @@ async def opt_comand():
     sock = ctx.socket(zmq.PUB)
     sock.bind(f"tcp://192.168.1.8:{saved.port}08")   #IP of sender (the computer where we run server)
     while True:
+        print(saved.opt_comand)
         sock.send_json(saved.opt_comand)
         await asyncio.sleep(0.1)
 
@@ -152,16 +152,26 @@ app = Flask(__name__)
 @app.get('/OptimizationData')
 def list_OptimizationData():
     return saved.share_data()
+    
+@app.get('/OptCommand')
+def sendOptcommand():
+    return saved.opt_comand
 
 @app.post('/OptimizationData')
 def reset_OptimizationData():
     saved.reset_data()
     return 'data reset'
 
-@app.post('/OptState')
-def pause_resume_opt():
-    info = request.get_json()
-    saved.opt_comand = info['opt_comand']
+@app.post('/OptResume')
+def resume_opt():
+    saved.opt_comand = 'RESUME'
+    print('resume called')
+    return 'comand received'
+    
+@app.post('/OptPause')
+def pause_opt():
+    saved.opt_comand = 'PAUSE'
+    print('pause called')
     return 'comand received'
     
 
