@@ -10,7 +10,7 @@ ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.8"  # IP of computer where we run opt code
+        self.IP = "tcp://192.168.1.7"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
@@ -139,13 +139,13 @@ async def opt_state():
         await asyncio.sleep(0.1)
 
 
-async def opt_comand():
-    sock = ctx.socket(zmq.PUB)
-    sock.bind(f"tcp://192.168.1.8:{saved.port}08")   #IP of sender (the computer where we run server)
-    while True:
-        print(saved.opt_comand)
-        sock.send_json(saved.opt_comand)
-        await asyncio.sleep(0.1)
+#async def opt_comand():
+#    sock = ctx.socket(zmq.PUB)
+#    sock.bind(f"tcp://192.168.1.7:{saved.port}08")   #IP of sender (the computer where we run server)
+#    while True:
+#        print(saved.opt_comand)
+#        sock.send_json(saved.opt_comand)
+#        await asyncio.sleep(0.1)
 
 app = Flask(__name__)
 
@@ -164,13 +164,13 @@ def reset_OptimizationData():
 
 @app.post('/OptResume')
 def resume_opt():
-    saved.opt_comand = 'RESUME'
+    saved.opt_comand = "1"
     print('resume called')
     return 'comand received'
     
 @app.post('/OptPause')
 def pause_opt():
-    saved.opt_comand = 'PAUSE'
+    saved.opt_comand = "0"
     print('pause called')
     return 'comand received'
     
@@ -185,7 +185,7 @@ if __name__ == '__main__':
             data_gp(),
             data_acq(),
             opt_state(),
-            opt_comand(),
+           # opt_comand(),
             loop.run_in_executor(None, app.run)]
     loop.run_until_complete(asyncio.gather(*tasks))
     
