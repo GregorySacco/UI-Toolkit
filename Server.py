@@ -6,11 +6,10 @@ from flask import Flask, request
 import requests
 
 ctx = zmq.asyncio.Context()
-#ctx = zmq.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.7"  # IP of computer where we run opt code
+        self.IP = "tcp://192.168.1.5"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
@@ -27,7 +26,7 @@ class Store:
                     } 
         self.state = "OFF"        #state of the optimization process 
         self.hrv = None
-        self.opt_comand = 'RESUME'    #command from UI for optimization 
+        self.opt_comand = "1"    #command from UI for optimization 
 
     def share_data(self):
         in_memory_datastore = {
