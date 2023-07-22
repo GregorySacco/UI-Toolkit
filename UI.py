@@ -102,7 +102,6 @@ class UI:
             update_hyp = updateHyperParm(self, hyp.order[1])
             layout = {'title': hyp.order[1],'margin': {'l': 40, 'r': 30, 't': 40, 'b': 30}}
             update_hyp['layout'] = layout
-            #print('HELLLLEOOO', update_hyp)
             return update_hyp
                 
         @self.app.callback(Output(component_id="live_hyp2", component_property="figure"), 
@@ -149,7 +148,7 @@ class UI:
                     Input('graph-updateSig', 'n_intervals'))  
         def updateLiveCost(n):   
             data = go.Scatter(y=self.GPy, mode="lines")
-            layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title=''),title='Cost')
+            layout = go.Layout(xaxis = dict(title='Iteration'),yaxis=dict(title='ms'), title='Cost')
             return {'data': [data], 'layout': layout}
 
         @self.app.callback(Output(component_id="server_flag", component_property="color"),
@@ -185,7 +184,7 @@ class UI:
             Input('pause_button', 'n_clicks'))
         def resume_opt(n_resume, n_pause):
             if (None == n_resume) and (None == n_pause):
-                return True #state
+                return False #state
             if "resume_button" == ctx.triggered_id:
                 requests.post(f'http://{self.serverIP}:{self.serverPort}/OptResume')
                 return False
@@ -221,17 +220,6 @@ class UI:
                 else: 
                     config['Optimization']['range'] = boxcouples
                     data = boxcouples
-                #print('hello1')
-                #def format_list(dumper, data):
-                #    return dumper.represent_scalar('tag:yaml.org,2002:str', str(data), style='')
-                #    
-                #yaml.add_representer(str, format_list)
-                #print('hello2')
-                #config_list = [n_parm, GP, Acq, parmRanges, opt_time, opt_steps]
-                
-                #if isinstance(config['Optimization']['range'], list):
-                #     print('is a string helllo')
-                #print('hello3')
                 with open('/home/kim/github/Demo-HIL-toolkit/configs/ECG_config.yml', 'w') as file:
                     yaml.dump(config, file, sort_keys=False)
                 

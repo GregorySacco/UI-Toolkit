@@ -51,13 +51,13 @@ layout_init = html.Div([
                     ], style = {'width': '80%'}), 
                     html.Br(),
                     html.Br(),
-                    html.H4('Insert the number of steps for optimization'),
+                    html.H4('Insert number of steps for optimization'),
                     dcc.Input(id='opt_steps', type='number', placeholder = 'n_steps',
                               style={'width': '40%', 'height': '25px'}, persistence=True, persistence_type='memory'),
                     html.Br(),
                     html.Br(),
                     html.Br(),
-                    html.H4('Insert the time for each step'),
+                    html.H4('Insert time for each step'),
                     dcc.Input(id='opt_time', type='number', placeholder = 'seconds',
                               style={'width': '40%', 'height': '25px'}, persistence=True, persistence_type='memory') 
                 ], style={'padding':1, 'flex':1,'margin-left': '3%'}),
@@ -111,6 +111,7 @@ layout_opt=html.Div([
                                 style={'width': '15%','height':'80px', 'margin-left':'3%', 'margin-top':'2%','border-radius':'10px'}),
                 ],style={"width": "100 %"})
 
+
 layout_sig=html.Div([
                 html.Br(),
                 html.Div([
@@ -130,6 +131,7 @@ layout_sig=html.Div([
                 ], style={'padding':1, 'flex':1}), 
 
             ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
+
 
 layout_hyp = html.Div([
                 html.Br(),

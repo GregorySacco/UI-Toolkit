@@ -28,9 +28,7 @@ def download_data(obj, config):
         j = 0
         obj.parameters = {1:[],2:[],3:[],4:[],5:[],6:[]}  
         for block in data['data_plot']['x']:
-            #print('BLOCK', block)
             for i in range(n_parm):
-                #print('JEEYY',j)
                 obj.parameters[i+1].append(data['data_plot']['x'][j][i])
             j+=1
 
@@ -65,19 +63,19 @@ def download_data(obj, config):
             obj.hyperparameters[hyp_name] = data['data_hyp'][hyp_name]
             
     if data['data_ecg'] != []:
-        obj.ECGy = [item for sublist in data['data_ecg'] for item in sublist]
+        obj.ECGy = data['data_ecg']
         
     obj.HRVy = data['data_hrv']
-    #print(obj.hyperparameters)
+
 
 def updateECG(obj):
     data = go.Scatter(y= obj.ECGy, name='ECG', mode="lines")
-    layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='ECG')
+    layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='V'),title='ECG')
     return {'data': [data], 'layout': layout}
 
 def updateHRV(obj):
     data = go.Scatter(y= obj.HRVy, name='HRV', mode="lines")
-    layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='mV'),title='HRV')
+    layout = go.Layout(xaxis = dict(title=''),yaxis=dict(title='ms'),title='RMSSD')
     return {'data': [data], 'layout': layout}
 
 def updateLiveGP(obj, config):
@@ -127,10 +125,7 @@ def updateAcqGraph(obj, config):
             
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
-        #print(config['Optimization']['range'])
         ranges = config['Optimization']['range']
-        
-        #print(config['Optimization']['range'])
         
         parmRange1= [int(num) for num in ranges[0]]
         parmRange2= [int(num) for num in ranges[1]]

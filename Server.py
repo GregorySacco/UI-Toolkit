@@ -9,7 +9,7 @@ ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.5"  # IP of computer where we run opt code
+        self.IP = "tcp://192.168.1.8"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
