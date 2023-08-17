@@ -74,7 +74,7 @@ layout_init = html.Div([
                     dcc.Dropdown(['Regular','RGPE'], 'Regular', id='GP-dropdown', style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.H4('Select type of Acquisition function:',),
-                    dcc.Dropdown(['ei', 'Matern'], 'ei', id='Acq-dropdown',
+                    dcc.Dropdown(['ei', 'pi'], 'ei', id='Acq-dropdown',
                                 style={'width': '80%'}, persistence=True),
                     html.Br(),
                     html.Div([
@@ -162,4 +162,9 @@ layout_hyp = html.Div([
                         'layout' : {'title': 'Hyperparameter 6','margin': {'l': 40, 'r': 30, 't': 40, 'b': 30},}})
                 ], style={'padding':1, 'flex':1}), 
 
-            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"}),
+            ],style={'display':'flex', 'flex-direction':'row', "width": "100 %"})
+            
+            
+            
+            
+            

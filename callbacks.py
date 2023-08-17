@@ -121,7 +121,7 @@ def updateAcqGraph(obj, config):
     if n_parm == 1:
         parmRange = config['Optimization']['range'][0]
         layout = go.Layout(xaxis = dict(title='Parameter',range=parmRange),
-                                    yaxis=dict(title='Acquisition function'))
+                                    yaxis=dict(title='Probability'))
             
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
@@ -131,7 +131,7 @@ def updateAcqGraph(obj, config):
         parmRange2= [int(num) for num in ranges[1]]
         layout=go.Layout(xaxis = dict(range=parmRange1),yaxis=dict(range=parmRange2),
                             scene=dict(xaxis_title='Parameter1', yaxis_title='Parameter2',
-                            zaxis_title='Cost', aspectmode='manual', aspectratio=dict(x=scale['x'],
+                            zaxis_title='Expected Improvement', aspectmode='manual', aspectratio=dict(x=scale['x'],
                             y=scale['y'], z=scale['z'])), margin=dict(r=10, b=40, l=10, t=0)) 
 
     if n_parm == 1:                   
