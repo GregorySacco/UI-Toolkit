@@ -69,6 +69,9 @@ def download_data(obj, config):
 
 
 def updateECG(obj):
+    # print(obj.ECGy)
+    print(np.shape(obj.ECGy), 'ecg', type(obj.ECGy), obj.ECGy[0:10])
+    obj.ECGy = np.array(obj.ECGy).flatten().tolist()
     data = go.Scatter(y= obj.ECGy, name='ECG', mode="lines")
     layout = go.Layout(xaxis = dict(title='Time'),yaxis=dict(title='V'),title='ECG')
     return {'data': [data], 'layout': layout}
@@ -126,7 +129,7 @@ def updateAcqGraph(obj, config):
     else:
         scale= {'x':1.4, 'y':1.4, 'z':0.5}
         ranges = config['Optimization']['range']
-        
+        print(ranges)
         parmRange1= [int(num) for num in ranges[0]]
         parmRange2= [int(num) for num in ranges[1]]
         layout=go.Layout(xaxis = dict(range=parmRange1),yaxis=dict(range=parmRange2),

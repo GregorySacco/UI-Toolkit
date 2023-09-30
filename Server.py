@@ -9,7 +9,7 @@ ctx = zmq.asyncio.Context()
 
 class Store:
     def __init__(self):
-        self.IP = "tcp://192.168.1.49"  # IP of computer where we run opt code
+        self.IP = "tcp://192.168.0.124"  # IP of computer where we run opt code
         self.port = "45"
         self.reset_data()
 
@@ -91,6 +91,7 @@ async def data_ecg():
     while True:
         try:
             msg = await sock.recv_json(flags=zmq.NOBLOCK) # waits for msg to be ready
+            # print(msg)
         except zmq.ZMQError:
             msg = None
         if msg is not None:

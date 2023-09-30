@@ -15,7 +15,7 @@ class UI:
         reset(self)
         yaml.preserve_quotes = True
         yaml.preserve_round_trip_comments= True
-        with open('/home/kim/github/Demo-HIL-toolkit/configs/ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
+        with open('/home/prakyath/github/research/Demo_HIL_toolkit/configs/ECG_config.yml', 'r') as file: config = yaml.safe_load(file)
         self.serverIP = '127.0.0.1'
         self.serverPort = '5000'
         self.app = dash.Dash(__name__, suppress_callback_exceptions=True, 
